@@ -13,7 +13,7 @@ function steamRoots() {
     : [path.join(home, '.steam/steam'), path.join(home, '.local/share/Steam'), path.join(home, '.var/app/com.valvesoftware.Steam/.local/share/Steam')];
   if (process.platform === 'win32') {
     for (const key of ['HKCU\\Software\\Valve\\Steam', 'HKLM\\Software\\WOW6432Node\\Valve\\Steam', 'HKLM\\Software\\Valve\\Steam']) try {
-      const output = execFileSync('reg', ['query', key, '/v', 'SteamPath'], { encoding: 'utf8', timeout: 1200 });
+      const output = execFileSync('reg', ['query', key, '/v', 'SteamPath'], { encoding: 'utf8', timeout: 1200, stdio: ['ignore', 'pipe', 'ignore'] });
       const value = output.match(/SteamPath\s+REG_SZ\s+(.+)$/mi)?.[1]?.trim();
       if (value) candidates.push(value.replace(/\\/g, path.sep));
     } catch { /* this registry location is not present */ }
@@ -236,7 +236,7 @@ function scanProviders(scanners) {
   const unique = new Map();
   const providers = scanners.map(([name, scan]) => {
     try {
-      const games = scan();
+      const games = [...new Map(scan().map(game => [game.id, game])).values()];
       for (const game of games) unique.set(game.id, game);
       return { name, count: games.length, error: false };
     } catch {

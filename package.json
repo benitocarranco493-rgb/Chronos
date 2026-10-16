@@ -42,6 +42,9 @@
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false
     },
+    "portable": {
+      "artifactName": "Chronos-${version}-${arch}-Portable.${ext}"
+    },
     "linux": {
       "target": [
         "AppImage",
