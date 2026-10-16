@@ -8,6 +8,11 @@ contextBridge.exposeInMainWorld('chronos', {
   importSteamLibrary: steamId => ipcRenderer.invoke('steam:library', steamId),
   searchArtwork: title => ipcRenderer.invoke('art:search', title),
   downloadArtwork: imageUrl => ipcRenderer.invoke('art:download', imageUrl),
+  checkUpdates: () => ipcRenderer.invoke('update:check'),
+  downloadUpdate: () => ipcRenderer.invoke('update:download'),
+  installUpdate: () => ipcRenderer.invoke('update:install'),
+  openUpdatePage: url => ipcRenderer.invoke('update:open', url),
+  onUpdateState: callback => ipcRenderer.on('update:state', (_event, payload) => callback(payload)),
   launch: target => ipcRenderer.invoke('game:launch', target),
   openStore: url => ipcRenderer.invoke('store:open', url),
   pickGame: () => ipcRenderer.invoke('game:pick')

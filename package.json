@@ -4,6 +4,58 @@
   "private": true,
   "description": "A desktop game launcher built around a shelf of cartridges.",
   "main": "src/main.js",
-  "scripts": { "start": "electron .", "dev": "electron .", "test": "node --test" },
-  "devDependencies": { "electron": "^39.0.0" }
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron .",
+    "test": "node --test",
+    "dist": "electron-builder",
+    "dist:win": "electron-builder --win nsis portable",
+    "dist:linux": "electron-builder --linux AppImage deb"
+  },
+  "build": {
+    "appId": "com.chronos.launcher",
+    "productName": "Chronos",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "src/**/*",
+      "package.json"
+    ],
+    "asar": true,
+    "publish": [
+      {
+        "provider": "github",
+        "owner": "benitocarranco493-rgb",
+        "repo": "Chronos"
+      }
+    ],
+    "win": {
+      "target": [
+        "nsis",
+        "portable"
+      ],
+      "artifactName": "Chronos-${version}-${arch}.${ext}"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "deleteAppDataOnUninstall": false
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Game",
+      "artifactName": "Chronos-${version}-${arch}.${ext}"
+    }
+  },
+  "devDependencies": {
+    "electron": "^39.0.0",
+    "electron-builder": "^26.15.3"
+  },
+  "dependencies": {
+    "electron-updater": "^6.8.9"
+  }
 }

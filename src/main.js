@@ -8,9 +8,18 @@ const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGames } = require('./providers/library');
 const { searchStores } = require('./providers/stores');
 const { importSteamLibrary, searchGridArt } = require('./providers/online');
+const { autoUpdater } = require('electron-updater');
 
 const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
+autoUpdater.autoDownload = false;
+let availableUpdate = false;
+const notifyUpdate = payload => BrowserWindow.getAllWindows().forEach(win => win.webContents.send('update:state', payload));
+autoUpdater.on('update-available', info => { availableUpdate = true; notifyUpdate({ state: 'available', version: info.version }); });
+autoUpdater.on('update-not-available', info => notifyUpdate({ state: 'current', version: info.version }));
+autoUpdater.on('download-progress', progress => notifyUpdate({ state: 'downloading', percent: Math.round(progress.percent) }));
+autoUpdater.on('update-downloaded', info => notifyUpdate({ state: 'downloaded', version: info.version }));
+autoUpdater.on('error', error => notifyUpdate({ state: 'error', message: error.message }));
 
 function createWindow() {
   const win = new BrowserWindow({
@@ -77,6 +86,31 @@ ipcMain.handle('game:launch', async (_event, target) => {
 });
 ipcMain.handle('store:open', (_event, url) => {
   if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return false;
+  return shell.openExternal(url);
+});
+ipcMain.handle('update:check', async () => {
+  if (app.isPackaged) {
+    try {
+      const result = await autoUpdater.checkForUpdates();
+      availableUpdate = Boolean(result?.updateInfo && result.updateInfo.version !== app.getVersion());
+      return { packaged: true, current: app.getVersion(), available: availableUpdate, version: result?.updateInfo?.version || app.getVersion() };
+    } catch (error) { throw new Error(`Could not check for updates: ${error.message}`); }
+  }
+  const response = await fetch('https://api.github.com/repos/benitocarranco493-rgb/Chronos/releases/latest', { headers: { Accept: 'application/vnd.github+json', 'User-Agent': 'Chronos-Launcher' }, signal: AbortSignal.timeout(10000) });
+  if (!response.ok) throw new Error(`GitHub returned HTTP ${response.status}.`);
+  const release = await response.json();
+  const latest = String(release.tag_name || '').replace(/^v/, '');
+  const current = app.getVersion();
+  return { packaged: false, current, available: Boolean(latest && latest.localeCompare(current, undefined, { numeric: true, sensitivity: 'base' }) > 0), version: latest, url: release.html_url };
+});
+ipcMain.handle('update:download', async () => {
+  if (!app.isPackaged || !availableUpdate) throw new Error('No packaged update is available.');
+  await autoUpdater.downloadUpdate();
+  return true;
+});
+ipcMain.handle('update:install', () => { if (!app.isPackaged) return false; autoUpdater.quitAndInstall(); return true; });
+ipcMain.handle('update:open', (_event, url) => {
+  if (typeof url !== 'string' || !/^https:\/\/github\.com\/benitocarranco493-rgb\/Chronos\/releases\//i.test(url)) return false;
   return shell.openExternal(url);
 });
 ipcMain.handle('game:pick', async () => {
