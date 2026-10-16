@@ -13,11 +13,13 @@ npm start
 
 Build release artifacts on the matching host with `npm run dist:win` (Windows NSIS installer and portable EXE) or `npm run dist:linux` (AppImage and DEB). Artifacts are written to `release/`. Packaged update checks use GitHub Releases; source runs open the release page. The updater only supports compatible packaged targets.
 
-Run the storage and credential checks with `npm test`.
+Run the project checks with `npm test` (16 tests at the current revision).
 
 The first run checks common Steam locations and additional Steam libraries, Heroic's local Epic/Legendary and GOG install data, Lutris' library when available, and installed Flatpak applications on Linux. Flatpak metadata does not consistently identify games, so some non-game apps may be listed. Add games yourself with a title, optional cover image, and optional launch target. The library is stored as a versioned JSON database in Electron's per-user data directory. Existing browser-local collections are migrated on first launch. API keys are encrypted through Electron's OS-backed safe storage when the system keyring is available; Linux systems without a Secret Service/KWallet keyring cannot save keys securely.
 
 On first launch Chronos asks for a store region and offers to scan local launchers. Online API keys remain optional. Uninstallers are configured to preserve Chronos user data.
+
+The Windows NSIS installer and portable build have been generated successfully on Windows. Electron uses context isolation, a sandboxed renderer, a restricted preload API, and a local content security policy. Linux packages still need their host build and runtime validation.
 
 ## Current scope
 
