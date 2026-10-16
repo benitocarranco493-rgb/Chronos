@@ -1,0 +1,9 @@
+{
+  "name": "chronos-launcher",
+  "version": "0.1.0",
+  "private": true,
+  "description": "A desktop game launcher built around a shelf of cartridges.",
+  "main": "src/main.js",
+  "scripts": { "start": "electron .", "dev": "electron ." },
+  "devDependencies": { "electron": "^39.0.0" }
+}
