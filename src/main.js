@@ -3,6 +3,7 @@ const path = require('node:path');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGames } = require('./providers/library');
+const { searchStores } = require('./providers/stores');
 
 const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
@@ -33,6 +34,11 @@ ipcMain.handle('data:save', (_event, database) => store.save(database));
 ipcMain.handle('credentials:set', (_event, provider, value) => credentials.set(provider, value));
 ipcMain.handle('credentials:status', () => credentials.status());
 ipcMain.handle('games:scan', () => scanInstalledGames());
+ipcMain.handle('store:search', (_event, query, region) => {
+  const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
+  const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
+  return searchStores(query, { country, locale });
+});
 ipcMain.handle('game:launch', async (_event, target) => {
   if (typeof target !== 'string' || !target) return false;
   if (/^https?:\/\//i.test(target) || /^(steam|epic|heroic|com\.heroicgameslauncher\.|lutris):\/\//i.test(target) || /^lutris:rungame\//i.test(target)) {

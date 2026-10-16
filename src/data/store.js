@@ -15,6 +15,8 @@ function cleanGame(game) {
     source: typeof game.source === 'string' ? game.source.slice(0, 40) : (typeof game.platform === 'string' ? game.platform.toLowerCase() : 'manual'),
     sources: Array.isArray(game.sources) ? [...new Set(game.sources.filter(source => typeof source === 'string').map(source => source.slice(0, 40)))].slice(0, 12) : [],
     launchOptions: Array.isArray(game.launchOptions) ? game.launchOptions.filter(option => option && typeof option.launch === 'string').slice(0, 12).map(option => ({ platform: String(option.platform || '').slice(0, 40), source: String(option.source || '').slice(0, 40), launch: option.launch.slice(0, 2048) })) : [],
+    favorite: game.favorite === true,
+    lastPlayed: Number.isFinite(game.lastPlayed) ? game.lastPlayed : 0,
     hidden: game.hidden === true
   };
 }

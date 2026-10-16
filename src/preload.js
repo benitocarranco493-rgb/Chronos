@@ -4,6 +4,7 @@ contextBridge.exposeInMainWorld('chronos', {
   saveData: database => ipcRenderer.invoke('data:save', database),
   saveCredential: (provider, value) => ipcRenderer.invoke('credentials:set', provider, value),
   scanGames: () => ipcRenderer.invoke('games:scan'),
+  searchStores: (query, region) => ipcRenderer.invoke('store:search', query, region),
   launch: target => ipcRenderer.invoke('game:launch', target),
   openStore: url => ipcRenderer.invoke('store:open', url),
   pickGame: () => ipcRenderer.invoke('game:pick')

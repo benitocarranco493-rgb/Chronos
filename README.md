@@ -22,7 +22,7 @@ The first run checks common Steam locations and additional Steam libraries, Hero
 - Manual entries and cartridge label artwork when a cover is missing.
 - Search, platform filtering, favorites, sorting by name/platform/activity, editable game details, launch-target selection, relocalization, remove, and launch status.
 - Lazy cover loading and generated local labels when artwork is missing or unavailable.
-- Steam and Epic official store shortcuts.
-- Optional key storage is OS-encrypted where secure storage is available; API integrations are not wired up yet.
+- In-app Steam and Epic search with regional prices, discounts, artwork, and official listing links.
+- Optional key storage is OS-encrypted where secure storage is available; account-library and artwork integrations are still pending.
 
-Amazon games and Battle.net/Riot discovery are not implemented yet. Heroic detection depends on its local install metadata; standalone launcher and account-only data are not imported. Account library APIs, in-app store search and price comparison, and packaged installers are planned follow-up work. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
+Amazon games and Battle.net/Riot discovery are not implemented yet. Heroic detection depends on its local install metadata; standalone launcher and account-only data are not imported. Steam account-library import, SteamGridDB artwork search, and packaged installers are planned follow-up work. Epic search uses its public storefront GraphQL endpoint and may be unavailable if Epic changes that service. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
