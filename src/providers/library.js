@@ -108,8 +108,89 @@ function heroicGames(roots = heroicRoots()) {
       if (!game.is_installed) continue;
       addGame(game.app_name || game.appName || game.id, 'sideload', game.title || game.name);
     }
+
+    const nileRoot = path.join(base, 'nile_config');
+    for (const file of ['installed.json', 'library.json', 'games.json']) {
+      const nile = jsonFile(path.join(nileRoot, file));
+      for (const game of asArray(nile?.games || nile?.installed || nile)) {
+        const id = game.productId || game.product_id || game.app_name || game.appName || game.id;
+        const installPath = game.install_path || game.installPath || game.install_dir;
+        if (!id || game.installed === false || game.is_installed === false || (installPath && !fs.existsSync(installPath))) continue;
+        if (!installPath && game.installed !== true && game.is_installed !== true) continue;
+        addGame(id, 'nile', game.title || game.name || id, game.art || game.cover_url || '');
+      }
+    }
   }
   return [...new Map(games.map(game => [game.id, game])).values()];
+}
+
+const RIOT_PRODUCTS = {
+  league_of_legends: { title: 'League of Legends', executable: path.join('Game', 'League of Legends.exe') },
+  valorant: { title: 'VALORANT', executable: path.join('ShooterGame', 'Binaries', 'Win64', 'VALORANT-Win64-Shipping.exe') },
+  bacon: { title: 'Legends of Runeterra', executable: path.join('live', 'Game', 'LoR.exe') }
+};
+
+function riotConfigFiles() {
+  return [path.join(process.env.PROGRAMDATA || 'C:\\ProgramData', 'Riot Games', 'RiotClientInstalls.json'), path.join(process.env.LOCALAPPDATA || '', 'Riot Games', 'RiotClientInstalls.json')];
+}
+
+function findRiotClient(configFiles = riotConfigFiles()) {
+  for (const file of configFiles) {
+    const data = jsonFile(file);
+    const candidate = data?.rc_default || data?.rc_live;
+    if (typeof candidate === 'string' && path.basename(candidate).toLowerCase() === 'riotclientservices.exe' && fs.existsSync(candidate)) return candidate;
+  }
+  const programFiles = process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)';
+  const candidates = [path.join(programFiles, 'Riot Games', 'Riot Client', 'RiotClientServices.exe'), path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Riot Games', 'Riot Client', 'RiotClientServices.exe')];
+  return candidates.find(candidate => fs.existsSync(candidate)) || null;
+}
+
+function riotGames(configFiles = riotConfigFiles(), platform = process.platform) {
+  if (platform !== 'win32') return [];
+  const games = [];
+  for (const file of configFiles) {
+    const data = jsonFile(file);
+    if (!data?.product_settings) continue;
+    for (const [key, product] of Object.entries(data.product_settings)) {
+      const id = String(product.product_id || key.split('.')[0]).toLowerCase();
+      const definition = RIOT_PRODUCTS[id];
+      if (!definition || !product.product_install_root) continue;
+      const root = path.join(product.product_install_root, product.product_install_dir || '');
+      if (!fs.existsSync(path.join(root, definition.executable)) && !fs.existsSync(path.join(root, 'live', definition.executable))) continue;
+      const patchline = String(product.patchline_id || product.patchline || 'live').replace(/[^a-z0-9_-]/gi, '');
+      games.push({ id: `riot-${id}`, title: definition.title, platform: 'Riot', source: 'riot', launch: `riot://launch/${id}/${patchline}` });
+    }
+  }
+  return [...new Map(games.map(game => [game.id, game])).values()];
+}
+
+const BATTLENET_GAMES = [
+  { id: 'wow', title: 'World of Warcraft', folder: 'World of Warcraft', executables: [path.join('_retail_', 'Wow.exe'), 'Wow.exe'] },
+  { id: 'pro', title: 'Overwatch 2', folder: 'Overwatch', executables: ['Overwatch.exe'] },
+  { id: 'fen', title: 'Diablo IV', folder: 'Diablo IV', executables: ['Diablo IV.exe'] },
+  { id: 'd3', title: 'Diablo III', folder: 'Diablo III', executables: ['Diablo III.exe'] },
+  { id: 'osi', title: 'Diablo II: Resurrected', folder: 'Diablo II Resurrected', executables: ['D2R.exe'] },
+  { id: 's2', title: 'StarCraft II', folder: 'StarCraft II', executables: ['StarCraft II.exe'] },
+  { id: 'hs', title: 'Hearthstone', folder: 'Hearthstone', executables: ['Hearthstone.exe'] },
+  { id: 'w3', title: 'Warcraft III: Reforged', folder: 'Warcraft III', executables: [path.join('_retail_', 'x86_64', 'Warcraft III.exe'), 'Warcraft III.exe'] }
+];
+
+function battleNetGames(roots = [process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)', process.env.PROGRAMFILES || 'C:\\Program Files'], clients = [path.join(process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)', 'Battle.net', 'Battle.net.exe'), path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Battle.net', 'Battle.net.exe')], platform = process.platform) {
+  if (platform !== 'win32') return [];
+  if (!clients.some(client => fs.existsSync(client))) return [];
+  const games = [];
+  for (const root of roots) for (const game of BATTLENET_GAMES) {
+    const candidates = [path.join(root, 'Battle.net', 'Games', game.folder), path.join(root, game.folder), path.join(root, 'Games', game.folder)];
+    if (candidates.some(folder => game.executables.some(executable => fs.existsSync(path.join(folder, executable))))) {
+      games.push({ id: `battlenet-${game.id}`, title: game.title, platform: 'Battle.net', source: 'battlenet', launch: `battlenet://launch/${game.id}` });
+    }
+  }
+  return [...new Map(games.map(game => [game.id, game])).values()];
+}
+
+function findBattleNetClient() {
+  const candidates = [path.join(process.env['PROGRAMFILES(X86)'] || 'C:\\Program Files (x86)', 'Battle.net', 'Battle.net.exe'), path.join(process.env.PROGRAMFILES || 'C:\\Program Files', 'Battle.net', 'Battle.net.exe')];
+  return candidates.find(candidate => fs.existsSync(candidate)) || null;
 }
 
 function lutrisGames() {
@@ -151,10 +232,27 @@ function lutrisGames() {
   return games;
 }
 
-function scanInstalledGames() {
+function scanProviders(scanners) {
   const unique = new Map();
-  for (const game of [...steamGames(), ...heroicGames(), ...lutrisGames(), ...flatpakGames()]) unique.set(game.id, game);
-  return [...unique.values()];
+  const providers = scanners.map(([name, scan]) => {
+    try {
+      const games = scan();
+      for (const game of games) unique.set(game.id, game);
+      return { name, count: games.length, error: false };
+    } catch {
+      return { name, count: 0, error: true };
+    }
+  });
+  return { games: [...unique.values()], providers };
 }
 
-module.exports = { scanInstalledGames, steamGames, heroicGames, heroicRoots, lutrisGames, flatpakGames };
+function scanInstalledGamesDetailed() {
+  return scanProviders([
+    ['Steam', steamGames], ['Heroic', heroicGames], ['Lutris', lutrisGames], ['Flatpak', flatpakGames],
+    ['Riot', riotGames], ['Battle.net', battleNetGames]
+  ]);
+}
+
+function scanInstalledGames() { return scanInstalledGamesDetailed().games; }
+
+module.exports = { scanInstalledGames, scanInstalledGamesDetailed, scanProviders, steamGames, heroicGames, heroicRoots, lutrisGames, flatpakGames, riotGames, findRiotClient, battleNetGames, findBattleNetClient };

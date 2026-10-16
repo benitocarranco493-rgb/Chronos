@@ -5,7 +5,7 @@ const crypto = require('node:crypto');
 const { pathToFileURL } = require('node:url');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
-const { scanInstalledGames } = require('./providers/library');
+const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { searchStores } = require('./providers/stores');
 const { importSteamLibrary, searchGridArt } = require('./providers/online');
 const { autoUpdater } = require('electron-updater');
@@ -25,8 +25,10 @@ function createWindow() {
   const win = new BrowserWindow({
     width: 1440, height: 960, minWidth: 960, minHeight: 680,
     backgroundColor: '#11130f', title: 'Chronos',
-    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false }
+    webPreferences: { preload: path.join(__dirname, 'preload.js'), contextIsolation: true, nodeIntegration: false, sandbox: true }
   });
+  win.webContents.setWindowOpenHandler(() => ({ action: 'deny' }));
+  win.webContents.on('will-navigate', (event, url) => { if (url !== win.webContents.getURL()) event.preventDefault(); });
   win.loadFile(path.join(__dirname, 'index.html'));
 }
 
@@ -43,10 +45,16 @@ ipcMain.handle('data:load', async (_event, legacy = {}) => {
   const database = store.load({ ...legacy, settings: {} });
   return { ...database, credentials: await credentials.status(), credentialsMigrated };
 });
-ipcMain.handle('data:save', (_event, database) => store.save(database));
-ipcMain.handle('credentials:set', (_event, provider, value) => credentials.set(provider, value));
+ipcMain.handle('data:save', (_event, database) => {
+  if (!database || typeof database !== 'object' || !Array.isArray(database.games) || database.games.length > 10000) throw new Error('Invalid library data.');
+  return store.save(database);
+});
+ipcMain.handle('credentials:set', (_event, provider, value) => {
+  if (typeof value !== 'string' || value.length > 512) return false;
+  return credentials.set(provider, value);
+});
 ipcMain.handle('credentials:status', () => credentials.status());
-ipcMain.handle('games:scan', () => scanInstalledGames());
+ipcMain.handle('games:scan', () => scanInstalledGamesDetailed());
 ipcMain.handle('store:search', (_event, query, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
   const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
@@ -60,7 +68,7 @@ ipcMain.handle('art:download', async (_event, imageUrl) => {
   if (url.protocol !== 'https:' || !/^cdn\d*\.steamgriddb\.com$/i.test(url.hostname)) throw new Error('Only SteamGridDB artwork can be downloaded.');
   const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
   const type = response.headers.get('content-type') || '';
-  if (!response.ok || !type.startsWith('image/')) throw new Error('Could not download this artwork.');
+  if (!response.ok || !['image/jpeg', 'image/png', 'image/webp'].includes(type.split(';')[0].trim().toLowerCase())) throw new Error('Could not download this artwork.');
   const bytes = Buffer.from(await response.arrayBuffer());
   if (!bytes.length || bytes.length > 8 * 1024 * 1024) throw new Error('Artwork must be smaller than 8 MB.');
   const extension = type.includes('png') ? '.png' : type.includes('webp') ? '.webp' : '.jpg';
@@ -72,6 +80,15 @@ ipcMain.handle('art:download', async (_event, imageUrl) => {
 });
 ipcMain.handle('game:launch', async (_event, target) => {
   if (typeof target !== 'string' || !target) return false;
+  const riot = target.match(/^riot:\/\/launch\/(league_of_legends|valorant|bacon)\/([a-z0-9_-]+)$/i);
+  const battleNet = target.match(/^battlenet:\/\/launch\/(wow|pro|fen|d3|osi|s2|hs|w3)$/i);
+  if (process.platform === 'win32' && (riot || battleNet)) {
+    const executable = riot ? findRiotClient() : findBattleNetClient();
+    if (!executable) return false;
+    const args = riot ? [`--launch-product=${riot[1]}`, `--launch-patchline=${riot[2]}`] : [`--exec=launch ${battleNet[1]}`];
+    const { execFile } = require('node:child_process');
+    return new Promise(resolve => execFile(executable, args, { windowsHide: true }, error => resolve(!error)));
+  }
   if (/^https?:\/\//i.test(target) || /^(steam|epic|heroic|com\.heroicgameslauncher\.|lutris):\/\//i.test(target) || /^lutris:rungame\//i.test(target)) {
     try { await shell.openExternal(target); return true; } catch { return false; }
   }

@@ -22,11 +22,11 @@ On first launch Chronos asks for a store region and offers to scan local launche
 ## Current scope
 
 - Windows and Linux desktop shell using Electron.
-- Local Steam app manifest scanning (including extra libraries), Heroic Epic and GOG install discovery, and Lutris/Flatpak discovery on Linux.
+- Local Steam app manifest scanning (including extra libraries), Heroic Epic/GOG/Amazon discovery, Lutris/Flatpak on Linux, and common Windows Riot/Battle.net installs.
 - Manual entries and cartridge label artwork when a cover is missing.
 - Search, platform filtering, favorites, sorting by name/platform/activity, editable game details, launch-target selection, relocalization, remove, and launch status.
 - Lazy cover loading and generated local labels when artwork is missing or unavailable.
 - In-app Steam and Epic search with regional prices, discounts, artwork, and official listing links.
 - Optional Steam library import by SteamID64 and SteamGridDB cover search are available when their keys are saved in OS secure storage.
 
-Amazon games and Battle.net/Riot discovery are not implemented yet. Heroic detection depends on its local install metadata; standalone launcher and account-only data are not imported. Steam Web API import requires a 17-digit SteamID64 and a visible games profile. SteamGridDB images selected in Chronos are downloaded to the local user data directory. Epic search uses its public storefront GraphQL endpoint and may be unavailable if Epic changes that service. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
+Heroic Amazon detection depends on Nile local metadata. Riot detection supports products with valid `RiotClientInstalls.json` records (League of Legends, VALORANT, and Legends of Runeterra); Battle.net detection checks common Windows install folders for known games. Nonstandard Windows paths and direct Linux Riot/Battle.net integration are not covered. Steam Web API import requires a 17-digit SteamID64 and a visible games profile. SteamGridDB images selected in Chronos are downloaded to the local user data directory. Epic search uses its public storefront GraphQL endpoint and may be unavailable if Epic changes that service. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
