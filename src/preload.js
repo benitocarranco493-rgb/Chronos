@@ -1,5 +1,8 @@
 const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('chronos', {
+  loadData: legacy => ipcRenderer.invoke('data:load', legacy),
+  saveData: database => ipcRenderer.invoke('data:save', database),
+  saveCredential: (provider, value) => ipcRenderer.invoke('credentials:set', provider, value),
   scanGames: () => ipcRenderer.invoke('games:scan'),
   launch: target => ipcRenderer.invoke('game:launch', target),
   openStore: url => ipcRenderer.invoke('store:open', url),

@@ -11,7 +11,9 @@ npm install
 npm start
 ```
 
-The first run checks common Steam locations, Heroic's local installed game data, Lutris' library when available, and installed Flatpak apps on Linux. Add games yourself with a title, optional cover image, and optional launch target. Collection data and optional keys are stored in the app's local browser storage.
+Run the storage and credential checks with `npm test`.
+
+The first run checks common Steam locations, Heroic's local installed game data, Lutris' library when available, and installed Flatpak apps on Linux. Add games yourself with a title, optional cover image, and optional launch target. The library is stored as a versioned JSON database in Electron's per-user data directory. Existing browser-local collections are migrated on first launch. API keys are encrypted through Electron's OS-backed safe storage when the system keyring is available; Linux systems without a Secret Service/KWallet keyring cannot save keys securely.
 
 ## Current scope
 
@@ -20,6 +22,6 @@ The first run checks common Steam locations, Heroic's local installed game data,
 - Manual entries and cartridge label artwork when a cover is missing.
 - Search, platform filtering, sorting, remove, and launch.
 - Steam and Epic official store shortcuts.
-- Optional key fields are stored locally; API integrations are not wired up yet.
+- Optional key storage is OS-encrypted where secure storage is available; API integrations are not wired up yet.
 
-Battle.net and Riot discovery, account library APIs, in-app store search and price comparison, secure OS credential storage, and packaged installers are planned follow-up work. Lutris reads its local database when the `sqlite3` command is available, with a config-file fallback.
+Battle.net and Riot discovery, account library APIs, in-app store search and price comparison, and packaged installers are planned follow-up work. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
