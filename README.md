@@ -11,7 +11,7 @@ npm install
 npm start
 ```
 
-Build release artifacts on the matching host with `npm run dist:win` (Windows NSIS installer and portable EXE) or `npm run dist:linux` (AppImage and DEB). Artifacts are written to `release/`. Packaged update checks use GitHub Releases; source runs open the release page. The updater only supports compatible packaged targets.
+Build release artifacts on the matching host with `npm run dist:win` (Windows NSIS installer and portable EXE) or `npm run dist:linux` (AppImage and DEB). Artifacts are written to `release/`; Windows builds are named `*-Setup.exe` and `*-Portable.exe`. GitHub Actions runs the Windows checks, creates both packages, and uploads them with SHA-256 checksums. Packaged update checks use GitHub Releases; source runs open the release page. The updater only supports compatible packaged targets.
 
 Run the project checks with `npm test` (16 tests at the current revision).
 

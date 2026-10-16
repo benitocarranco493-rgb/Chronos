@@ -123,7 +123,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Añadir documentación de instalación, privacidad, permisos, proveedores compatibles, limitaciones conocidas y solución de problemas.
 - Automatizar builds y verificaciones de publicación para Windows y Linux, firmar artefactos cuando sea posible y mantener checksums/notas de versión.
 
-**Estado:** 16 pruebas pasan; Electron 44.8.0 no tiene alertas de auditoría en runtime, aunque hay 8 alertas moderadas de una dependencia transitiva solo de desarrollo; el renderer está aislado, usa CSP y no carga fuentes remotas. Los builds NSIS y portable para Windows se generaron correctamente. Aún falta validar ejecución e instalación con datos reales en Windows. Linux se validará más adelante, según la instrucción del usuario.
+**Estado:** 16 pruebas pasan; Electron 44.8.0 no tiene alertas de auditoría en runtime, aunque hay 8 alertas moderadas de una dependencia transitiva solo de desarrollo; el renderer está aislado, usa CSP y no carga fuentes remotas. NSIS y portable se generan como archivos separados. GitHub Actions ejecuta pruebas, auditoría runtime, builds Windows y publica los artefactos de CI con checksums SHA-256. Aún falta validar la ejecución interactiva e instalación con datos reales en Windows. Linux se validará más adelante, según la instrucción del usuario.
 
 **Criterio de salida:** la versión publicada instala y arranca en los dos sistemas objetivo, conserva los datos y documenta con precisión sus capacidades y limitaciones.
 

@@ -1,0 +1,55 @@
+name: Windows checks and packages
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    steps:
+      - name: Check out source
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run tests
+        run: npm test
+
+      - name: Audit runtime dependencies
+        run: npm audit --omit=dev
+
+      - name: Build Windows installer and portable app
+        run: npm run dist:win
+
+      - name: Generate SHA-256 checksums
+        shell: pwsh
+        run: |
+          Get-ChildItem release -File | Where-Object { $_.Name -match '^Chronos-.*-(Setup|Portable)\.exe$' } |
+            Get-FileHash -Algorithm SHA256 |
+            ForEach-Object { "$($_.Hash.ToLower())  $([System.IO.Path]::GetFileName($_.Path))" } |
+            Set-Content release/SHA256SUMS.txt
+
+      - name: Upload Windows packages
+        uses: actions/upload-artifact@v4
+        with:
+          name: chronos-windows-${{ github.sha }}
+          path: |
+            release/Chronos-*-Setup.exe
+            release/Chronos-*-Portable.exe
+            release/SHA256SUMS.txt
+          if-no-files-found: error
+          retention-days: 30

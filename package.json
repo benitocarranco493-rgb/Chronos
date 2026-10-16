@@ -38,6 +38,7 @@
       "artifactName": "Chronos-${version}-${arch}.${ext}"
     },
     "nsis": {
+      "artifactName": "Chronos-${version}-${arch}-Setup.${ext}",
       "oneClick": false,
       "allowToChangeInstallationDirectory": true,
       "deleteAppDataOnUninstall": false
