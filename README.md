@@ -20,7 +20,8 @@ The first run checks common Steam locations and additional Steam libraries, Hero
 - Windows and Linux desktop shell using Electron.
 - Local Steam app manifest scanning (including extra libraries), Heroic Epic and GOG install discovery, and Lutris/Flatpak discovery on Linux.
 - Manual entries and cartridge label artwork when a cover is missing.
-- Search, platform filtering, sorting, editable game details, launch-target selection, relocalization, remove, and launch status.
+- Search, platform filtering, favorites, sorting by name/platform/activity, editable game details, launch-target selection, relocalization, remove, and launch status.
+- Lazy cover loading and generated local labels when artwork is missing or unavailable.
 - Steam and Epic official store shortcuts.
 - Optional key storage is OS-encrypted where secure storage is available; API integrations are not wired up yet.
 

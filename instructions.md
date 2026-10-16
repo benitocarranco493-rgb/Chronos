@@ -22,7 +22,7 @@ El uso básico no debe requerir cuentas ni claves. Las claves opcionales de Stea
 
 La base está creada con Electron y una interfaz HTML/CSS/JavaScript. Incluye la estantería, alta manual, búsqueda, filtro por plataforma, orden alfabético, etiquetas de carátula, animación de lanzamiento, accesos a las tiendas y escaneo inicial de Steam, Heroic, Lutris y Flatpak. La biblioteca ahora se guarda en un archivo JSON versionado del usuario, migra la colección anterior de `localStorage`, conserva una copia de respaldo y usa módulos separados para almacenamiento y escaneo. El escaneo combina por título exacto entradas de distintos proveedores y conserva sus opciones de lanzamiento. Las claves pasan por `safeStorage` de Electron cuando hay un almacén seguro del sistema disponible. Lutris usa SQLite integrado en Node, con `sqlite3` y los archivos de configuración como alternativas.
 
-Las Fases 1 a 3 están implementadas en el alcance indicado aquí. La fase 1 incluye almacenamiento versionado, migración, respaldo, deduplicación exacta por título y almacenamiento seguro opcional de claves. La fase 2 incluye Steam (manifiestos y bibliotecas adicionales), Epic/Legendary y GOG de Heroic, Lutris y Flatpak en Linux. La fase 3 añade una ficha editable, selección de destinos de lanzamiento, volver a localizar, quitar y estado de lanzamiento. Las ocho pruebas automatizadas pasan con `npm test`. Flatpak no siempre distingue juegos de otras aplicaciones; Amazon y la detección de Battle.net/Riot aún no están implementados. La validación de proveedores en Windows y Linux queda para la Fase 8. Siguen pendientes la búsqueda y comparación de tiendas, integraciones online, instalador, actualizaciones y validación multiplataforma.
+Las Fases 1 a 4 están implementadas en el alcance indicado aquí. La fase 1 incluye almacenamiento versionado, migración, respaldo, deduplicación exacta por título y almacenamiento seguro opcional de claves. La fase 2 incluye Steam (manifiestos y bibliotecas adicionales), Epic/Legendary y GOG de Heroic, Lutris y Flatpak en Linux. La fase 3 añade una ficha editable, selección de destinos de lanzamiento, volver a localizar, quitar y estado de lanzamiento. La fase 4 añade favoritos, orden por actividad/plataforma, carga diferida de portadas y etiquetas locales de respaldo. Las ocho pruebas automatizadas pasan con `npm test`. Flatpak no siempre distingue juegos de otras aplicaciones; Amazon y la detección de Battle.net/Riot aún no están implementados. La validación de proveedores en Windows y Linux queda para la Fase 8. Siguen pendientes la búsqueda y comparación de tiendas, integraciones online, instalador, actualizaciones y validación multiplataforma.
 
 ## Fases
 
@@ -70,6 +70,8 @@ Las Fases 1 a 3 están implementadas en el alcance indicado aquí. La fase 1 inc
 - Añadir selección de arte y caché local para evitar que la colección dependa de la disponibilidad de imágenes remotas.
 - Añadir favoritos y una vista de actividad reciente sin sacrificar navegación con teclado, contraste o escalado de ventana.
 - Revisar la identidad visual, iconos y recursos para asegurar que Chronos tiene una marca propia.
+
+**Estado:** favoritos filtrables, vistas ordenables por nombre/plataforma/actividad, carga diferida de carátulas y arte tipográfico local de respaldo. La selección y caché de arte están pendientes de las integraciones de la Fase 6.
 
 **Criterio de salida:** una colección sin conexión o sin ilustraciones sigue siendo completa, legible y fácil de navegar.
 
