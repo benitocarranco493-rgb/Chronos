@@ -19,7 +19,7 @@ The first run checks common Steam locations and additional Steam libraries, Hero
 
 On first launch Chronos asks for a store region and offers to scan local launchers. Online API keys remain optional. Uninstallers are configured to preserve Chronos user data.
 
-The Windows NSIS installer and portable build have been generated successfully on Windows. Electron uses context isolation, a sandboxed renderer, a restricted preload API, and a local content security policy. Linux packages still need their host build and runtime validation.
+The Windows NSIS installer and portable build have been generated successfully on Windows with a Chronos icon. Electron uses context isolation, a sandboxed renderer, a restricted preload API, and a local content security policy. Linux packages still need their host build and runtime validation.
 
 ## Current scope
 
