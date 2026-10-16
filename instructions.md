@@ -22,7 +22,7 @@ El uso básico no debe requerir cuentas ni claves. Las claves opcionales de Stea
 
 La base está creada con Electron y una interfaz HTML/CSS/JavaScript. Incluye la estantería, alta manual, búsqueda, filtro por plataforma, orden alfabético, etiquetas de carátula, animación de lanzamiento, accesos a las tiendas y escaneo inicial de Steam, Heroic, Lutris y Flatpak. La biblioteca ahora se guarda en un archivo JSON versionado del usuario, migra la colección anterior de `localStorage`, conserva una copia de respaldo y usa módulos separados para almacenamiento y escaneo. El escaneo combina por título exacto entradas de distintos proveedores y conserva sus opciones de lanzamiento. Las claves pasan por `safeStorage` de Electron cuando hay un almacén seguro del sistema disponible. Lutris usa SQLite integrado en Node, con `sqlite3` y los archivos de configuración como alternativas.
 
-La Fase 1 está implementada: almacenamiento versionado, migración, respaldo, deduplicación exacta por título y almacenamiento seguro opcional de claves. Sus seis pruebas automatizadas pasan con `npm test`; la validación de la aplicación y los proveedores en Windows y Linux queda para la Fase 8. Siguen pendientes el lanzamiento fiable en todos los sistemas, los conectores completos, la búsqueda y comparación de tiendas dentro de la aplicación, las integraciones de claves, el instalador, las actualizaciones y la validación multiplataforma.
+Las Fases 1 y 2 están implementadas en el alcance indicado aquí. La fase 1 incluye almacenamiento versionado, migración, respaldo, deduplicación exacta por título y almacenamiento seguro opcional de claves. La fase 2 incluye Steam (manifiestos y bibliotecas adicionales), Epic/Legendary y GOG de Heroic, Lutris y Flatpak en Linux. Las ocho pruebas automatizadas pasan con `npm test`. Flatpak no siempre distingue juegos de otras aplicaciones; Amazon y la detección de Battle.net/Riot aún no están implementados. La validación de proveedores en Windows y Linux queda para la Fase 8. Siguen pendientes la gestión completa de lanzamiento, búsqueda y comparación de tiendas, integraciones online, instalador, actualizaciones y validación multiplataforma.
 
 ## Fases
 
@@ -39,12 +39,14 @@ La Fase 1 está implementada: almacenamiento versionado, migración, respaldo, d
 ### Fase 2 — Conectores locales y escaneo multiplataforma
 
 - Consolidar Steam en Windows y Linux: detectar instalaciones comunes, bibliotecas adicionales, manifiestos y metadatos disponibles sin clave.
-- Completar Heroic en ambos sistemas para Epic, GOG y Amazon cuando sus datos locales permitan identificar la tienda y el juego.
+- Completar Heroic en ambos sistemas para Epic y GOG cuando sus datos locales permitan identificar la tienda y el juego. Amazon queda pendiente por falta de un formato local verificado.
 - Completar Lutris en Linux con lectura robusta de su base local, incluida la instalación Flatpak, sin depender de que el ejecutable `sqlite3` esté instalado.
 - Detectar aplicaciones Flatpak instaladas y distinguir las aplicaciones de juegos cuando sea posible.
-- Añadir detección local de Battle.net y Riot en Windows y Linux cuando existan instalaciones compatibles; documentar claramente qué datos son detectables sin API o autenticación.
+- Battle.net y Riot quedan pendientes: implementar detección local en sistemas donde las instalaciones expongan metadatos fiables, sin API ni autenticación.
 - Añadir escaneo por proveedor, progreso, resumen de juegos encontrados y errores recuperables. No borrar juegos manuales o de otros proveedores al sincronizar.
 - Incluir una acción para volver a escanear y una forma de revisar/ocultar juegos detectados que el usuario no quiera en la colección.
+
+**Estado:** Steam, Heroic (Epic/GOG), Lutris y Flatpak están conectados con fallos aislados por proveedor. Se conservan IDs de Epic compatibles con la versión inicial. Hay pruebas automatizadas para el análisis de manifiestos Steam y datos Heroic. Flatpak puede mostrar aplicaciones que no son juegos. Amazon, Battle.net, Riot, progreso por proveedor y ocultar entradas detectadas quedan pendientes.
 
 **Criterio de salida:** cada proveedor disponible se identifica por separado, el escaneo repetido no duplica juegos y un proveedor ausente o con datos dañados no impide cargar los demás.
 

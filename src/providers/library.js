@@ -21,9 +21,9 @@ function steamRoots() {
   return candidates.filter((p, i) => fs.existsSync(p) && candidates.indexOf(p) === i);
 }
 
-function steamGames() {
+function steamGames(roots = steamRoots()) {
   const games = [];
-  for (const root of steamRoots()) {
+  for (const root of roots) {
     const libraries = [root, ...[...readText(path.join(root, 'steamapps/libraryfolders.vdf')).matchAll(/"path"\s+"([^"]+)"/g)].map(m => m[1].replace(/\\\\/g, '\\'))];
     for (const library of new Set(libraries)) {
       const directory = path.join(library, 'steamapps');
@@ -51,25 +51,65 @@ function flatpakGames() {
   } catch { return []; }
 }
 
-function heroicGames() {
+function heroicRoots() {
   const home = os.homedir();
   const configHome = process.env.XDG_CONFIG_HOME || path.join(home, '.config');
-  const roots = process.platform === 'win32'
-    ? [path.join(home, '.config', 'legendary'), path.join(process.env.APPDATA || '', 'heroic', 'legendary')]
-    : [path.join(configHome, 'legendary'), path.join(home, '.var/app/com.heroicgameslauncher.hgl/config/legendary')];
+  const heroic = process.platform === 'win32'
+    ? [path.join(process.env.APPDATA || '', 'heroic'), path.join(home, '.config', 'heroic')]
+    : [path.join(configHome, 'heroic'), path.join(home, '.var/app/com.heroicgameslauncher.hgl/config/heroic')];
+  const roots = [];
+  for (const base of heroic) {
+    roots.push({ base, legendary: path.join(base, 'legendaryConfig', 'legendary') });
+    roots.push({ base, legendary: path.join(base, 'legendary') });
+  }
+  if (process.platform === 'win32') roots.push({ base: path.join(home, '.config', 'heroic'), legendary: path.join(home, '.config', 'legendary') });
+  else roots.push({ base: configHome, legendary: path.join(configHome, 'legendary') });
+  return roots;
+}
+
+function asArray(value) {
+  if (Array.isArray(value)) return value;
+  if (!value || typeof value !== 'object') return [];
+  for (const key of ['games', 'installed', 'elements', 'library']) if (Array.isArray(value[key])) return value[key];
+  return Object.values(value).filter(item => item && typeof item === 'object');
+}
+
+function heroicGames(roots = heroicRoots()) {
   const games = [];
-  for (const root of roots) {
-    const installed = jsonFile(path.join(root, 'installed.json'));
-    if (!installed || typeof installed !== 'object') continue;
-    for (const [appName, info] of Object.entries(installed)) {
+  const addGame = (appName, runner, title, art = '') => {
+    if (!appName) return;
+    const source = runner === 'legendary' ? 'epic' : runner === 'gog' ? 'gog' : runner === 'nile' ? 'amazon' : 'heroic';
+    const id = runner === 'legendary' ? `heroic-${appName}` : `heroic-${runner}-${appName}`;
+    games.push({ id, title: title || appName, platform: 'Heroic', source: 'heroic', sources: ['heroic', source], art, launch: `heroic://launch?appName=${encodeURIComponent(appName)}&runner=${runner}` });
+  };
+  for (const { base, legendary } of roots) {
+    const installed = jsonFile(path.join(legendary, 'installed.json'));
+    if (installed && typeof installed === 'object') for (const [appName, info] of Object.entries(installed)) {
       if (!info || typeof info !== 'object') continue;
-      const metadata = jsonFile(path.join(root, 'metadata', `${appName}.json`));
+      const metadata = jsonFile(path.join(legendary, 'metadata', `${appName}.json`));
       const title = metadata?.metadata?.title || metadata?.title || appName;
       const artwork = metadata?.metadata?.keyImages?.find(image => ['DieselGameBox', 'OfferImageWide', 'DieselGameBoxTall'].includes(image.type))?.url || '';
-      games.push({ id: `heroic-${appName}`, title, platform: 'Heroic', source: 'heroic', art: artwork, launch: `heroic://launch?appName=${encodeURIComponent(appName)}&runner=legendary` });
+      addGame(appName, 'legendary', title, artwork);
+    }
+
+    const gogInstalled = jsonFile(path.join(base, 'gog_store', 'installed.json'));
+    const gogLibrary = asArray(jsonFile(path.join(base, 'store_cache', 'gog_library.json')));
+    const gogById = new Map(gogLibrary.map(game => [String(game.app_name || game.appName || game.id || ''), game]));
+    for (const game of asArray(gogInstalled)) {
+      const appName = String(game.appName || game.app_name || game.id || '');
+      if (!appName || game.is_installed === false) continue;
+      if (game.install_path && !fs.existsSync(game.install_path)) continue;
+      const info = gogById.get(appName) || game;
+      addGame(appName, 'gog', info.title || info.name || appName, info.art || info.cover_url || '');
+    }
+
+    const sideload = jsonFile(path.join(base, 'sideload_apps', 'library.json'));
+    for (const game of asArray(sideload?.games || sideload)) {
+      if (!game.is_installed) continue;
+      addGame(game.app_name || game.appName || game.id, 'sideload', game.title || game.name);
     }
   }
-  return games;
+  return [...new Map(games.map(game => [game.id, game])).values()];
 }
 
 function lutrisGames() {
@@ -117,4 +157,4 @@ function scanInstalledGames() {
   return [...unique.values()];
 }
 
-module.exports = { scanInstalledGames };
+module.exports = { scanInstalledGames, steamGames, heroicGames, heroicRoots, lutrisGames, flatpakGames };
