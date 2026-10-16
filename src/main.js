@@ -1,9 +1,13 @@
 const { app, BrowserWindow, ipcMain, shell, dialog, safeStorage } = require('electron');
 const path = require('node:path');
+const fs = require('node:fs');
+const crypto = require('node:crypto');
+const { pathToFileURL } = require('node:url');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGames } = require('./providers/library');
 const { searchStores } = require('./providers/stores');
+const { importSteamLibrary, searchGridArt } = require('./providers/online');
 
 const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
@@ -38,6 +42,24 @@ ipcMain.handle('store:search', (_event, query, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
   const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
   return searchStores(query, { country, locale });
+});
+ipcMain.handle('steam:library', async (_event, steamId) => importSteamLibrary(await credentials.get('steam'), steamId));
+ipcMain.handle('art:search', async (_event, title) => searchGridArt(await credentials.get('steamgriddb'), title));
+ipcMain.handle('art:download', async (_event, imageUrl) => {
+  let url;
+  try { url = new URL(imageUrl); } catch { throw new Error('Invalid artwork URL.'); }
+  if (url.protocol !== 'https:' || !/^cdn\d*\.steamgriddb\.com$/i.test(url.hostname)) throw new Error('Only SteamGridDB artwork can be downloaded.');
+  const response = await fetch(url, { signal: AbortSignal.timeout(15000) });
+  const type = response.headers.get('content-type') || '';
+  if (!response.ok || !type.startsWith('image/')) throw new Error('Could not download this artwork.');
+  const bytes = Buffer.from(await response.arrayBuffer());
+  if (!bytes.length || bytes.length > 8 * 1024 * 1024) throw new Error('Artwork must be smaller than 8 MB.');
+  const extension = type.includes('png') ? '.png' : type.includes('webp') ? '.webp' : '.jpg';
+  const directory = path.join(app.getPath('userData'), 'artwork');
+  fs.mkdirSync(directory, { recursive: true });
+  const filePath = path.join(directory, `${crypto.randomUUID()}${extension}`);
+  fs.writeFileSync(filePath, bytes);
+  return pathToFileURL(filePath).href;
 });
 ipcMain.handle('game:launch', async (_event, target) => {
   if (typeof target !== 'string' || !target) return false;

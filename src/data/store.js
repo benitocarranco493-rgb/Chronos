@@ -17,6 +17,8 @@ function cleanGame(game) {
     launchOptions: Array.isArray(game.launchOptions) ? game.launchOptions.filter(option => option && typeof option.launch === 'string').slice(0, 12).map(option => ({ platform: String(option.platform || '').slice(0, 40), source: String(option.source || '').slice(0, 40), launch: option.launch.slice(0, 2048) })) : [],
     favorite: game.favorite === true,
     lastPlayed: Number.isFinite(game.lastPlayed) ? game.lastPlayed : 0,
+    installed: game.installed === false ? false : game.installed === true,
+    playtimeMinutes: Number.isFinite(game.playtimeMinutes) ? Math.max(0, game.playtimeMinutes) : 0,
     hidden: game.hidden === true
   };
 }
