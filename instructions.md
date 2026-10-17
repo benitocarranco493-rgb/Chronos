@@ -97,7 +97,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Explicar con claridad qué datos añade cada clave y qué ocurre si está ausente, es inválida o el servicio no responde.
 - Mantener el launcher utilizable sin configurar ninguna clave.
 
-**Estado:** importar la biblioteca visible de Steam (incluidos juegos no instalados) usando clave segura y SteamID64, URL pública o nombre personalizado de perfil; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación está limitada por la visibilidad del perfil de Steam. El escaneo local solo detecta juegos instalados.
+**Estado:** importar la biblioteca visible de Steam (incluidos juegos no instalados) usando clave segura y SteamID64, URL pública o nombre personalizado de perfil; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación está limitada por la visibilidad del perfil de Steam; si Steam no devuelve una lista, Chronos indica que se revise la privacidad de los detalles de juego. Hay acceso directo a importar desde la estantería. El escaneo local solo detecta juegos instalados.
 
 **Criterio de salida:** claves opcionales guardadas de forma segura activan sus funciones y se pueden borrar; una instalación sin claves conserva todas las funciones locales.
 

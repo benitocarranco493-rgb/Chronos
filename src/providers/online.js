@@ -35,7 +35,9 @@ async function importSteamLibrary(apiKey, steamProfile, fetchImpl = fetch) {
   const response = await fetchImpl(url, { signal: AbortSignal.timeout(15000) });
   if (!response.ok) throw new Error(`Steam API returned HTTP ${response.status}. Check the key, SteamID, and profile visibility.`);
   const payload = await response.json();
-  return (payload.response?.games || []).map(game => ({
+  const ownedGames = payload?.response?.games;
+  if (!Array.isArray(ownedGames)) throw new Error('Steam did not return a library. Check the API key and make sure your game details are public.');
+  return ownedGames.map(game => ({
     id: `steam-${game.appid}`, title: game.name || `Steam app ${game.appid}`, platform: 'Steam', source: 'steam-account', sources: ['steam-account'],
     art: game.img_logo_url ? `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/header.jpg` : '',
     launch: `steam://rungameid/${game.appid}`, playtimeMinutes: Number(game.playtime_forever) || 0, installed: false
