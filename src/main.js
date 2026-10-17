@@ -69,10 +69,15 @@ ipcMain.handle('epic:login-url', () => epicLoginUrl());
 ipcMain.handle('epic:connect', async (_event, code) => {
   const session = await connectEpic(code);
   if (!await credentials.set('epic', JSON.stringify(session))) throw new Error('Chronos could not store the Epic session securely. Check the OS keyring.');
+  if (!await credentials.get('epic')) {
+    await credentials.set('epic', '');
+    throw new Error('Epic sign-in succeeded, but Chronos could not read the saved session. Check Windows secure storage and connect again.');
+  }
   return true;
 });
 ipcMain.handle('epic:library', async () => {
   const rawSession = await credentials.get('epic');
+  if (!rawSession) throw new Error('No Epic session is saved. In Settings, sign in with Epic, paste its authorization code, and press Connect first.');
   let session;
   try { session = rawSession ? JSON.parse(rawSession) : null; } catch { session = null; }
   return epicLibrary(session, async refreshed => {

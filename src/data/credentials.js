@@ -26,7 +26,9 @@ function createCredentialStore(userDataPath, safeStorage, platform) {
     cache = value;
   }
   async function status() {
-    return { secureStorageAvailable: await available(), steam: Boolean(read().steam), steamgriddb: Boolean(read().steamgriddb), epic: Boolean(read().epic) };
+    const secureStorageAvailable = await available();
+    const epicSession = secureStorageAvailable ? await get('epic') : null;
+    return { secureStorageAvailable, steam: Boolean(read().steam), steamgriddb: Boolean(read().steamgriddb), epic: Boolean(epicSession) };
   }
   async function set(provider, value) {
     if (!KEY_NAMES[provider] || typeof value !== 'string') return false;
