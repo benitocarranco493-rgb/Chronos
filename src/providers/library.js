@@ -86,19 +86,16 @@ function heroicGames(roots = heroicRoots()) {
   for (const { base, legendary } of roots) {
     const installed = jsonFile(path.join(legendary, 'installed.json'));
     const installedNames = new Set(Object.keys(installed && typeof installed === 'object' ? installed : {}));
-    const metadataDirectory = path.join(legendary, 'metadata');
-    try {
-      for (const file of fs.readdirSync(metadataDirectory).filter(name => name.toLowerCase().endsWith('.json'))) {
-        const appName = path.basename(file, path.extname(file));
-        const metadata = jsonFile(path.join(metadataDirectory, file));
-        const details = metadata?.metadata || metadata;
-        if (!details || typeof details !== 'object' || details.isDLC === true || details.is_dlc === true) continue;
-        const title = details.title || metadata.title || appName;
-        if (!title || typeof title !== 'string') continue;
-        const artwork = details.keyImages?.find(image => ['DieselGameBox', 'OfferImageWide', 'DieselGameBoxTall'].includes(image.type))?.url || '';
-        addGame(appName, 'legendary', title, artwork, installedNames.has(appName));
-      }
-    } catch { /* Heroic may not have synced an Epic library */ }
+    const heroicLibrary = jsonFile(path.join(base, 'store_cache', 'legendary_library.json'));
+    const heroicEntries = asArray(heroicLibrary?.library);
+    const heroicConfig = jsonFile(path.join(base, 'store', 'config.json'));
+    const hiddenEpicGames = new Set(asArray(heroicConfig?.games?.hidden).map(game => game?.appName).filter(Boolean));
+    for (const entry of heroicEntries) {
+      const appName = String(entry?.app_name || '');
+      if (!appName || !entry?.title || entry.is_dlc || hiddenEpicGames.has(appName)) continue;
+      const artwork = entry.art || entry.cover_url || '';
+      addGame(appName, 'legendary', entry.title, artwork, installedNames.has(appName));
+    }
     // Older Heroic/Legendary data may have installed entries without cached metadata.
     for (const appName of installedNames) {
       if (games.some(game => game.id === `heroic-${appName}`)) continue;
@@ -148,13 +145,18 @@ function epicGames(directories = epicManifestDirectories()) {
   for (const directory of directories) try {
     for (const file of fs.readdirSync(directory).filter(name => name.toLowerCase().endsWith('.item'))) {
       const manifest = jsonFile(path.join(directory, file));
-      if (!manifest || typeof manifest !== 'object' || !manifest.AppName) continue;
-      if (manifest.InstallLocation && !fs.existsSync(manifest.InstallLocation)) continue;
+      if (!manifest || typeof manifest !== 'object' || !manifest.AppName || manifest.bIsIncompleteInstall) continue;
+      if (manifest.MainGameAppName && manifest.AppName !== manifest.MainGameAppName) continue;
+      const categories = Array.isArray(manifest.AppCategories) ? manifest.AppCategories.map(category => String(category).toLowerCase()) : [];
+      if (categories.length && !categories.includes('games')) continue;
+      if (!manifest.InstallLocation || !fs.existsSync(manifest.InstallLocation)) continue;
       const appName = String(manifest.AppName);
       const title = String(manifest.DisplayName || appName);
+      const epicIds = [manifest.CatalogNamespace, manifest.CatalogItemId, manifest.AppName].filter(Boolean).map(value => encodeURIComponent(String(value))).join('%3A');
+      if (!epicIds) continue;
       games.push({
         id: `epic-${appName}`, title, platform: 'Epic', source: 'epic', sources: ['epic'], installed: true,
-        launch: `com.epicgames.launcher://apps/${encodeURIComponent(appName)}?action=launch&silent=true`
+        launch: `com.epicgames.launcher://apps/${epicIds}?action=launch&silent=true`
       });
     }
   } catch { /* Epic Launcher is absent or its manifests are unavailable */ }
