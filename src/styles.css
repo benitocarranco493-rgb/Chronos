@@ -17,6 +17,9 @@
   text-rendering: optimizeLegibility;
 }
 * { box-sizing: border-box; }
+.heroicon-definitions { position: absolute; width: 0; height: 0; overflow: hidden; }
+.icon { width: 1.1em; height: 1.1em; flex: 0 0 auto; display: inline-block; vertical-align: -0.16em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.icon.icon-star-solid { fill: currentColor; stroke: none; }
 html { min-width: 700px; min-height: 100%; background: var(--ink); }
 body {
   min-height: 100vh;
@@ -61,13 +64,13 @@ button:focus-visible, input:focus-visible, select:focus-visible, .game-card:focu
 .brand-word small { display: block; margin-top: 3px; color: var(--faint); font: 8px Consolas, monospace; letter-spacing: 2px; }
 .search { height: 40px; display: flex; align-items: center; gap: 10px; padding: 0 13px; border: 1px solid var(--line); border-radius: 13px; color: var(--muted); background: rgba(7, 11, 22, .47); }
 .search:focus-within { border-color: rgba(145, 244, 211, .55); box-shadow: 0 0 0 3px rgba(145, 244, 211, .07); }
-.search>span { font: 22px "Segoe UI Symbol", sans-serif; line-height: 1; }
+.search>.icon { width: 17px; height: 17px; color: var(--muted); }
 .search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 13px; }
 .search input::placeholder { color: #838ba7; }
 .global-search { width: min(34vw, 400px); margin: 0 auto; }
 .top-nav { display: flex; align-items: center; gap: 5px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: rgba(6, 9, 20, .42); }
 .nav-item { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; border: 0; border-radius: 11px; color: #b4bbd4; background: transparent; font-size: 12px; font-weight: 650; transition: color .18s, background .18s, box-shadow .18s; }
-.nav-item>span { color: var(--violet); font-size: 15px; }
+.nav-item>.icon { width: 16px; height: 16px; color: var(--violet); }
 .nav-item b { color: #9be8d6; font: 10px Consolas, monospace; }
 .nav-item:hover { color: white; }
 .nav-item.active { color: white; background: linear-gradient(135deg, rgba(142, 121, 230, .42), rgba(93, 157, 173, .32)); box-shadow: inset 0 0 0 1px rgba(219, 221, 255, .2), 0 3px 12px rgba(3, 5, 13, .22); }
@@ -139,7 +142,8 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .cartridge-bottom { height: 15px; display: flex; align-items: end; justify-content: space-between; padding: 0 5px; color: #8189a2; font: 6px Consolas, monospace; letter-spacing: .9px; }
 .cart-light { width: 5px; height: 5px; border-radius: 50%; background: #81efd0; box-shadow: 0 0 7px #81efd0; }
 .game-card:not([data-installed="true"]) .cart-light { background: #e9bc75; box-shadow: 0 0 7px #e9bc75; }
-.card-favorite { position: absolute; z-index: 3; top: 34px; right: 17px; color: #fff2a9; font-size: 15px; text-shadow: 0 2px 8px #000; }
+.card-favorite { position: absolute; z-index: 3; top: 34px; right: 17px; display: grid; place-items: center; color: #fff2a9; filter: drop-shadow(0 2px 5px #000); }
+.card-favorite .icon { width: 17px; height: 17px; }
 .card-info { padding: 10px 4px 0; text-align: center; }
 .card-info strong { display: block; overflow: hidden; color: #f0f1ff; font-size: 12px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
 .platform-tag { overflow: hidden; margin-top: 5px; color: #9da6c4; font: 9px Consolas, monospace; text-overflow: ellipsis; white-space: nowrap; }
@@ -154,6 +158,7 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .remove-game { width: 26px; height: 26px; border: 1px solid rgba(255,255,255,.24); border-radius: 50%; color: white; background: rgba(10,12,23,.8); }
 .empty-state { display: none; padding: 48px 0 80px; text-align: center; }
 .empty-cart { width: 58px; height: 76px; display: grid; place-items: center; margin: 0 auto 16px; border: 1px solid rgba(145,244,211,.5); border-radius: 11px 11px 16px 16px; color: var(--mint); background: linear-gradient(145deg, rgba(145,244,211,.15), rgba(184,156,255,.14)); font-size: 30px; box-shadow: 0 10px 30px rgba(3,6,15,.4); }
+.empty-cart .icon { width: 25px; height: 25px; stroke-width: 1.5; }
 .empty-state h3 { margin: 0 0 8px; font-size: 18px; }
 .empty-state p { margin: 0 0 18px; color: var(--muted); font-size: 12px; }
 .empty-state>div:last-child { display: flex; justify-content: center; gap: 8px; }
@@ -182,7 +187,8 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .store-price del { color: #838aa3; }
 .store-price em { color: var(--coral); font-style: normal; }
 .store-result>.quiet { margin-left: auto; white-space: nowrap; }
-.store-note { display: flex; gap: 13px; margin-top: 18px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; color: var(--mint); background: rgba(19,25,43,.6); }
+.store-note { display: flex; align-items: flex-start; gap: 13px; margin-top: 18px; padding: 16px; border: 1px solid var(--line); border-radius: 13px; color: var(--mint); background: rgba(19,25,43,.6); }
+.store-note>.icon { width: 20px; height: 20px; flex: none; }
 .store-note strong { color: #e4e8f8; font-size: 12px; }
 .store-note p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 
@@ -207,7 +213,9 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .target-row input { flex: 1; }
 .target-row .quiet { padding: 0 10px; }
 .full-button { margin-top: 5px; }
-.dialog-close { position: absolute; top: 14px; right: 16px; border: 0; color: var(--muted); background: none; font-size: 24px; }
+.dialog-close { position: absolute; top: 14px; right: 16px; width: 34px; height: 34px; display: grid; place-items: center; border: 0; border-radius: 9px; color: var(--muted); background: none; }
+.dialog-close:hover { color: white; background: rgba(255,255,255,.08); }
+.dialog-close .icon { width: 20px; height: 20px; }
 .detail-top { display: flex; align-items: flex-start; justify-content: space-between; }
 .detail-top h2 { margin: 7px 0 0; font-size: 22px; }
 .detail-meta, .detail-target { overflow-wrap: anywhere; color: #b9c0d7; font-size: 12px; line-height: 1.6; }
@@ -236,7 +244,7 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .detail-art-panel::before, .detail-art-panel::after { content: ""; position: absolute; width: 240px; height: 240px; border: 1px solid rgba(190,200,255,.1); border-radius: 50%; pointer-events: none; }
 .detail-art-panel::before { transform: scaleX(1.35) rotate(-35deg); }
 .detail-art-panel::after { transform: scaleX(.78) rotate(35deg); }
-.detail-dialog .dialog-close { z-index: 3; top: 17px; right: 19px; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 10px; color: #d6daeb; background: rgba(12,16,29,.64); font-size: 22px; }
+.detail-dialog .dialog-close { z-index: 3; top: 17px; right: 19px; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 10px; color: #d6daeb; background: rgba(12,16,29,.64); }
 .detail-cartridge { width: min(235px, 100%); aspect-ratio: .72; position: relative; z-index: 1; display: flex; flex-direction: column; padding: 10px 11px 14px; border: 1px solid rgba(211,216,255,.35); border-radius: 19px 19px 23px 23px; background: linear-gradient(110deg,#626980,#252b40 9%,#131827 24%,#131827 82%,#555b71); box-shadow: 0 24px 44px rgba(0,0,0,.54), 0 0 38px rgba(169,151,255,.13), inset 0 1px rgba(255,255,255,.23), inset 0 -6px rgba(0,0,0,.35); }
 .detail-cartridge::before { content: ""; position: absolute; top: 4px; left: 36%; width: 28%; height: 7px; border-radius: 0 0 5px 5px; background: #090c16; box-shadow: 0 1px rgba(255,255,255,.2); }
 .detail-cartridge-top { height: 34px; display: grid; place-items: center; color: #e4e7f4; font: 700 9px Consolas,monospace; letter-spacing: 1.6px; }
@@ -251,6 +259,7 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .detail-heading .eyebrow { color: var(--mint); }
 .detail-heading h2 { margin: 8px 0 0; font-size: clamp(23px, 2.8vw, 34px); font-weight: 670; line-height: 1.1; letter-spacing: -1px; }
 .detail-favorite { width: 39px; min-width: 39px; padding: 0; color: #fff0a6; font-size: 20px; }
+.detail-favorite .icon { width: 20px; height: 20px; }
 .detail-favorite[aria-pressed="true"] { border-color: rgba(255,240,166,.55); background: rgba(180,145,55,.16); }
 .detail-primary-actions { display: flex; align-items: center; gap: 9px; margin-top: 22px; }
 .detail-primary-actions #detail-launch { min-width: 190px; flex: 1; min-height: 46px; font-size: 14px; }
@@ -267,6 +276,8 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .achievement-heading h3 { margin: 0; font-size: 15px; font-weight: 650; }
 .achievement-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
 .achievement-trophy { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid rgba(255,224,145,.34); border-radius: 10px; color: #ffe291; background: rgba(183,145,58,.13); font-size: 18px; }
+.achievement-trophy .icon { width: 17px; height: 17px; }
+.dock-play-icon { width: 18px; height: 18px; color: var(--coral); }
 .achievement-progress { height: 5px; overflow: hidden; margin: 13px 0 14px; border-radius: 6px; background: rgba(195,202,228,.13); }
 .achievement-progress>span { width: 0; height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg,#a991ff,#8ef0d1); box-shadow: 0 0 12px rgba(142,240,209,.34); transition: width .55s cubic-bezier(.2,.8,.2,1); }
 .achievements-grid { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); gap: 8px; }
@@ -276,7 +287,8 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .achievement-icon.locked img { filter: grayscale(1) brightness(.42); }
 .achievement-icon.unlocked { border-color: rgba(151,244,211,.36); box-shadow: 0 0 12px rgba(145,244,211,.11); }
 .achievement-icon:hover { z-index: 1; transform: scale(1.08); border-color: var(--mint); }
-.achievement-icon>span { position: absolute; right: 3px; bottom: 3px; width: 14px; height: 14px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.34); border-radius: 50%; color: #061812; background: var(--mint); font-size: 9px; font-weight: 800; }
+.achievement-icon>span { position: absolute; right: 3px; bottom: 3px; width: 15px; height: 15px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.34); border-radius: 50%; color: #061812; background: var(--mint); }
+.achievement-icon>span .icon { width: 10px; height: 10px; stroke-width: 2.5; }
 .achievement-message { color: #a6aec9; font-size: 11px; line-height: 1.5; }
 .achievement-panel #achievement-toggle, .achievement-panel #achievement-connect { min-height: 32px; margin-top: 12px; padding: 0 11px; font-size: 10px; }
 .about-panel { margin-top: 22px; }
