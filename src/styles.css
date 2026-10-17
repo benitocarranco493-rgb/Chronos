@@ -137,6 +137,8 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .cartridge::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 35px; height: 4px; border-radius: 5px; background: #090b13; box-shadow: 0 1px rgba(255,255,255,.17); transform: translateX(-50%); }
 .cartridge-top { height: 23px; display: flex; align-items: center; justify-content: center; position: relative; }
 .platform-badge { max-width: 100%; overflow: hidden; color: #d9dded; font: 700 8px Consolas, monospace; letter-spacing: 1px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+.platform-badge-steam { width: 26px; height: 18px; display: grid; place-items: center; color: #e7efff; filter: drop-shadow(0 1px 3px rgba(0,0,0,.55)); }
+.platform-badge-steam .icon { width: 17px; height: 17px; fill: currentColor; stroke: none; }
 .cartridge-art { width: 100%; height: calc(100% - 39px); position: relative; overflow: hidden; border: 1px solid rgba(215, 221, 255, .23); border-radius: 7px 7px 9px 9px; background: #20273a; box-shadow: 0 4px 11px rgba(0,0,0,.42); }
 .cartridge-art::before { content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at var(--shine-x,50%) var(--shine-y,30%), rgba(255,255,255,.27), transparent 54%); transition: opacity .2s ease; }
 .game-card:hover .cartridge-art::before, .game-card:focus-visible .cartridge-art::before { opacity: 1; }
