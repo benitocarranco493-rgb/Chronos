@@ -9,13 +9,13 @@
 
     for (const discovered of discoveredGames) {
       const game = { ...discovered };
-      if (detected) game.installed = true;
+      if (detected && game.installed === undefined) game.installed = true;
       const source = game.source || game.platform.toLowerCase();
       const target = games.find(item => item.id === game.id)
         || games.find(item => !isManual(item) && item.title.trim().toLocaleLowerCase() === game.title.trim().toLocaleLowerCase());
 
       if (target) {
-        if (detected) target.installed = true;
+        if (detected && game.installed !== false) target.installed = true;
         target.sources = [...new Set([...(target.sources || [target.source || target.platform.toLowerCase()]), source])];
         target.launchOptions = [...(target.launchOptions || []), ...(target.launch ? [{ platform: target.platform, source: target.source || target.platform.toLowerCase(), launch: target.launch }] : []), ...(game.launch ? [{ platform: game.platform, source, launch: game.launch }] : [])]
           .filter((option, index, list) => list.findIndex(candidate => candidate.launch === option.launch) === index);

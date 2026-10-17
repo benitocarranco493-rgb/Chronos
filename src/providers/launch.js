@@ -15,7 +15,7 @@ function createGameLauncher({ platform = process.platform, shell, findRiotClient
       return new Promise(resolve => execFile(executable, args, { windowsHide: true }, error => resolve(!error)));
     }
 
-    if (/^https?:\/\//i.test(target) || /^(steam|epic|heroic|com\.heroicgameslauncher\.|lutris):\/\//i.test(target) || /^lutris:rungame\//i.test(target)) {
+    if (/^https?:\/\//i.test(target) || /^(steam|epic|heroic|com\.heroicgameslauncher\.|com\.epicgames\.launcher|lutris):\/\//i.test(target) || /^lutris:rungame\//i.test(target)) {
       try { await shell.openExternal(target); return true; } catch { return false; }
     }
 

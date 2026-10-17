@@ -76,20 +76,34 @@ function asArray(value) {
 
 function heroicGames(roots = heroicRoots()) {
   const games = [];
-  const addGame = (appName, runner, title, art = '') => {
+  const addGame = (appName, runner, title, art = '', installed = true) => {
     if (!appName) return;
     const source = runner === 'legendary' ? 'epic' : runner === 'gog' ? 'gog' : runner === 'nile' ? 'amazon' : 'heroic';
     const id = runner === 'legendary' ? `heroic-${appName}` : `heroic-${runner}-${appName}`;
-    games.push({ id, title: title || appName, platform: 'Heroic', source: 'heroic', sources: ['heroic', source], art, launch: `heroic://launch?appName=${encodeURIComponent(appName)}&runner=${runner}` });
+    const platform = runner === 'legendary' ? 'Epic' : 'Heroic';
+    games.push({ id, title: title || appName, platform, source: 'heroic', sources: [source, 'heroic'], art, installed, launch: `heroic://launch?appName=${encodeURIComponent(appName)}&runner=${runner}` });
   };
   for (const { base, legendary } of roots) {
     const installed = jsonFile(path.join(legendary, 'installed.json'));
-    if (installed && typeof installed === 'object') for (const [appName, info] of Object.entries(installed)) {
-      if (!info || typeof info !== 'object') continue;
-      const metadata = jsonFile(path.join(legendary, 'metadata', `${appName}.json`));
-      const title = metadata?.metadata?.title || metadata?.title || appName;
-      const artwork = metadata?.metadata?.keyImages?.find(image => ['DieselGameBox', 'OfferImageWide', 'DieselGameBoxTall'].includes(image.type))?.url || '';
-      addGame(appName, 'legendary', title, artwork);
+    const installedNames = new Set(Object.keys(installed && typeof installed === 'object' ? installed : {}));
+    const metadataDirectory = path.join(legendary, 'metadata');
+    try {
+      for (const file of fs.readdirSync(metadataDirectory).filter(name => name.toLowerCase().endsWith('.json'))) {
+        const appName = path.basename(file, path.extname(file));
+        const metadata = jsonFile(path.join(metadataDirectory, file));
+        const details = metadata?.metadata || metadata;
+        if (!details || typeof details !== 'object' || details.isDLC === true || details.is_dlc === true) continue;
+        const title = details.title || metadata.title || appName;
+        if (!title || typeof title !== 'string') continue;
+        const artwork = details.keyImages?.find(image => ['DieselGameBox', 'OfferImageWide', 'DieselGameBoxTall'].includes(image.type))?.url || '';
+        addGame(appName, 'legendary', title, artwork, installedNames.has(appName));
+      }
+    } catch { /* Heroic may not have synced an Epic library */ }
+    // Older Heroic/Legendary data may have installed entries without cached metadata.
+    for (const appName of installedNames) {
+      if (games.some(game => game.id === `heroic-${appName}`)) continue;
+      const info = installed[appName];
+      if (info && typeof info === 'object') addGame(appName, 'legendary', info.title || appName, '', true);
     }
 
     const gogInstalled = jsonFile(path.join(base, 'gog_store', 'installed.json'));
@@ -121,6 +135,29 @@ function heroicGames(roots = heroicRoots()) {
       }
     }
   }
+  return [...new Map(games.map(game => [game.id, game])).values()];
+}
+
+function epicManifestDirectories() {
+  if (process.platform !== 'win32') return [];
+  return [path.join(process.env.PROGRAMDATA || 'C:\\ProgramData', 'Epic', 'EpicGamesLauncher', 'Data', 'Manifests')];
+}
+
+function epicGames(directories = epicManifestDirectories()) {
+  const games = [];
+  for (const directory of directories) try {
+    for (const file of fs.readdirSync(directory).filter(name => name.toLowerCase().endsWith('.item'))) {
+      const manifest = jsonFile(path.join(directory, file));
+      if (!manifest || typeof manifest !== 'object' || !manifest.AppName) continue;
+      if (manifest.InstallLocation && !fs.existsSync(manifest.InstallLocation)) continue;
+      const appName = String(manifest.AppName);
+      const title = String(manifest.DisplayName || appName);
+      games.push({
+        id: `epic-${appName}`, title, platform: 'Epic', source: 'epic', sources: ['epic'], installed: true,
+        launch: `com.epicgames.launcher://apps/${encodeURIComponent(appName)}?action=launch&silent=true`
+      });
+    }
+  } catch { /* Epic Launcher is absent or its manifests are unavailable */ }
   return [...new Map(games.map(game => [game.id, game])).values()];
 }
 
@@ -248,11 +285,11 @@ function scanProviders(scanners) {
 
 function scanInstalledGamesDetailed() {
   return scanProviders([
-    ['Steam', steamGames], ['Heroic', heroicGames], ['Lutris', lutrisGames], ['Flatpak', flatpakGames],
+    ['Steam', steamGames], ['Heroic', heroicGames], ['Epic Games', epicGames], ['Lutris', lutrisGames], ['Flatpak', flatpakGames],
     ['Riot', riotGames], ['Battle.net', battleNetGames]
   ]);
 }
 
 function scanInstalledGames() { return scanInstalledGamesDetailed().games; }
 
-module.exports = { scanInstalledGames, scanInstalledGamesDetailed, scanProviders, steamGames, heroicGames, heroicRoots, lutrisGames, flatpakGames, riotGames, findRiotClient, battleNetGames, findBattleNetClient };
+module.exports = { scanInstalledGames, scanInstalledGamesDetailed, scanProviders, steamGames, heroicGames, heroicRoots, epicGames, epicManifestDirectories, lutrisGames, flatpakGames, riotGames, findRiotClient, battleNetGames, findBattleNetClient };
