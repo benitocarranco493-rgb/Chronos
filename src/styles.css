@@ -123,20 +123,23 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .header-actions button:disabled { opacity: .58; cursor: wait; }
 
 .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(174px, 1fr)); align-items: start; gap: 29px clamp(16px, 2vw, 28px); padding: 5px 4px 95px; }
-.game-card { min-width: 0; position: relative; cursor: pointer; animation: card-enter .34s ease both; }
+.game-card { min-width: 0; position: relative; z-index: 0; cursor: pointer; animation: card-enter .34s ease both; }
+.game-card:hover, .game-card:focus-visible { z-index: 4; }
 .cartridge {
-  aspect-ratio: .73; position: relative; overflow: hidden; padding: 9px 10px 14px;
+  aspect-ratio: .73; position: relative; overflow: hidden; padding: 9px 10px 14px; transform-origin: center 58%; transform-style: preserve-3d; backface-visibility: hidden; will-change: transform;
   border: 1px solid rgba(197, 203, 240, .31); border-radius: 16px 16px 20px 20px;
   background: linear-gradient(112deg, #4c516a 0%, #24293c 6%, #171b2b 18%, #101422 84%, #34394e 96%, #555b71 100%);
   box-shadow: 0 13px 22px rgba(2, 4, 12, .5), inset 0 1px rgba(255,255,255,.19), inset 0 -5px rgba(0,0,0,.38);
-  transition: transform .22s cubic-bezier(.2,.8,.2,1), box-shadow .22s, border-color .22s;
+  transition: transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, border-color .2s ease;
 }
-.game-card:hover .cartridge { transform: translateY(-7px) scale(1.025); border-color: rgba(188, 197, 255, .72); box-shadow: 0 22px 34px rgba(2, 4, 12, .55), 0 0 27px rgba(142, 159, 255, .2), inset 0 1px rgba(255,255,255,.22); }
+.game-card:hover .cartridge, .game-card:focus-visible .cartridge { transform: perspective(950px) translateY(-11px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.05); border-color: rgba(188, 197, 255, .78); box-shadow: 0 27px 38px rgba(2, 4, 12, .62), 0 0 31px rgba(142, 159, 255, .24), inset 0 1px rgba(255,255,255,.25); }
 .cartridge::before { content: ""; position: absolute; top: 4px; left: 30%; right: 30%; height: 5px; border-radius: 0 0 5px 5px; background: linear-gradient(90deg, #080b14, #596079 50%, #090c15); box-shadow: 0 1px 1px rgba(255,255,255,.16); }
 .cartridge::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 35px; height: 4px; border-radius: 5px; background: #090b13; box-shadow: 0 1px rgba(255,255,255,.17); transform: translateX(-50%); }
 .cartridge-top { height: 23px; display: flex; align-items: center; justify-content: center; position: relative; }
 .platform-badge { max-width: 100%; overflow: hidden; color: #d9dded; font: 700 8px Consolas, monospace; letter-spacing: 1px; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
 .cartridge-art { width: 100%; height: calc(100% - 39px); position: relative; overflow: hidden; border: 1px solid rgba(215, 221, 255, .23); border-radius: 7px 7px 9px 9px; background: #20273a; box-shadow: 0 4px 11px rgba(0,0,0,.42); }
+.cartridge-art::before { content: ""; position: absolute; z-index: 1; inset: 0; pointer-events: none; opacity: 0; background: radial-gradient(circle at var(--shine-x,50%) var(--shine-y,30%), rgba(255,255,255,.27), transparent 54%); transition: opacity .2s ease; }
+.game-card:hover .cartridge-art::before, .game-card:focus-visible .cartridge-art::before { opacity: .85; }
 .cartridge-art::after { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(155deg, rgba(255,255,255,.1), transparent 22%, transparent 70%, rgba(0,0,0,.18)); }
 .cartridge-art img { width: 100%; height: 100%; display: block; object-fit: cover; }
 .cartridge-bottom { height: 15px; display: flex; align-items: end; justify-content: space-between; padding: 0 5px; color: #8189a2; font: 6px Consolas, monospace; letter-spacing: .9px; }

@@ -22,6 +22,15 @@ function render() {
   const shown = games.filter(g => g.title.toLowerCase().includes(query) && (showHidden||!g.hidden) && (!favoritesOnly||g.favorite) && (platform === 'all' || g.platform === platform || (g.sources||[]).some(source=>source.toLowerCase()===platform.toLowerCase()))).sort((a,b) => sort==='az'?a.title.localeCompare(b.title):sort==='played'?(b.lastPlayed||0)-(a.lastPlayed||0):sort==='platform'?a.platform.localeCompare(b.platform)||a.title.localeCompare(b.title):(b.added||0)-(a.added||0));
   $('#library-count').textContent = games.length; $('#banner-count').textContent = String(games.length).padStart(2, '0'); $('#visible-count').textContent = shown.length;
   $('#game-grid').innerHTML = shown.map((g,i) => {const labels=(g.sources?.length?g.sources:[g.platform]).map(sourceLabel).join(' · ');const maker=sourceLabel(g.sources?.[0]||g.platform||'Game').toUpperCase();return `<article class="game-card" data-id="${escapeHtml(g.id)}" data-installed="${g.installed===true}" tabindex="0" role="button" aria-label="Details for ${escapeHtml(g.title)}"><div class="cartridge"><div class="cartridge-top"><span class="platform-badge">${escapeHtml(maker)}</span></div><div class="cartridge-art">${g.art ? `<img loading="lazy" src="${escapeHtml(g.art)}" alt="">` : labelArt(g.title,i)}</div><div class="cartridge-bottom"><span>${g.installed?'READY TO PLAY':'IN LIBRARY'}</span><i class="cart-light"></i></div>${g.favorite?`<span class="card-favorite" aria-label="Favorite">${iconSvg('star-solid')}</span>`:''}</div><div class="card-info"><div><strong title="${escapeHtml(g.title)}">${escapeHtml(g.title)}</strong><div class="platform-tag">${escapeHtml(labels)}</div></div></div></article>`}).join('');
+  $('#game-grid').querySelectorAll('.game-card').forEach(card=>{
+    card.addEventListener('pointermove',event=>{
+      if(event.pointerType!=='mouse')return;
+      const rect=card.querySelector('.cartridge').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width,y=(event.clientY-rect.top)/rect.height;
+      card.style.setProperty('--tilt-x',`${(0.5-y)*8}deg`);card.style.setProperty('--tilt-y',`${(x-0.5)*10}deg`);
+      card.style.setProperty('--shine-x',`${x*100}%`);card.style.setProperty('--shine-y',`${y*100}%`);
+    });
+    card.addEventListener('pointerleave',()=>{card.style.setProperty('--tilt-x','0deg');card.style.setProperty('--tilt-y','0deg');card.style.setProperty('--shine-x','50%');card.style.setProperty('--shine-y','30%')});
+  });
   $('#game-grid').querySelectorAll('.cartridge img').forEach((img,index)=>{
     const game=games.find(item=>item.id===img.closest('.game-card')?.dataset.id);
     const steamId=game?.id?.match(/^steam-(\d+)$/)?.[1];
