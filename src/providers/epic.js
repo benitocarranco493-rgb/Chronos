@@ -127,13 +127,14 @@ async function epicLibrary(session, persistSession = async () => {}) {
     const platforms = Array.isArray(record.platform) ? record.platform : [];
     if (platforms.length && !platforms.some(platform => ['Windows', 'Win32'].includes(platform))) continue;
     const catalog = catalogInfo.get(`${namespace}:${catalogItemId}`) || {};
-    if (catalog.mainGameItem || record.isDLC || record.is_dlc) continue;
+    const embeddedCatalog = record.catalogItem && typeof record.catalogItem === 'object' ? record.catalogItem : {};
+    if (catalog.mainGameItem || embeddedCatalog.mainGameItem || record.isDLC || record.is_dlc) continue;
     const metadata = record.metadata && typeof record.metadata === 'object' ? record.metadata : {};
-    const titleCandidates = [catalog.title, catalog.displayName, metadata.title, metadata.displayName, record.title, record.displayName]
+    const titleCandidates = [embeddedCatalog.title, embeddedCatalog.displayName, catalog.title, catalog.displayName, metadata.title, metadata.displayName, record.title, record.displayName]
       .map(value => String(value || '').trim())
       .filter(value => value && value.toLowerCase() !== appName.toLowerCase() && value.toLowerCase() !== catalogItemId.toLowerCase());
     const title = titleCandidates[0] || `Epic game ${appName}`;
-    const keyImages = [catalog.keyImages, metadata.keyImages, record.keyImages].flatMap(images => Array.isArray(images) ? images : []);
+    const keyImages = [embeddedCatalog.keyImages, catalog.keyImages, metadata.keyImages, record.keyImages].flatMap(images => Array.isArray(images) ? images : []);
     const imageTypes = ['DieselGameBoxTall', 'DieselGameBox', 'OfferImageTall', 'OfferImageWide', 'Thumbnail'];
     const image = [...imageTypes.map(type => keyImages.find(item => item?.type === type)?.url), ...keyImages.map(item => item?.url)]
       .find(url => typeof url === 'string' && /^https:\/\//i.test(url)) || '';
