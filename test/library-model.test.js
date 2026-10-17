@@ -25,3 +25,13 @@ test('scanning merges matching detected sources and keeps their launch targets',
   assert.deepEqual(result.games[0].sources, ['steam', 'heroic']);
   assert.equal(result.games[0].launchOptions.length, 2);
 });
+
+test('local scan marks games installed without changing Steam account imports until found locally', () => {
+  const imported = { id: 'steam-42', title: 'Same title', platform: 'Steam', source: 'steam-account', installed: false };
+  const accountLibrary = mergeDiscoveredGames([], [imported]);
+  assert.equal(accountLibrary.games[0].installed, false);
+
+  const localScan = mergeDiscoveredGames(accountLibrary.games, [{ ...imported, source: 'steam', installed: undefined }], { detected: true });
+  assert.equal(localScan.games[0].installed, true);
+  assert.deepEqual(localScan.games[0].sources, ['steam-account', 'steam']);
+});
