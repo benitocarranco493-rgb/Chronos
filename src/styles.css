@@ -132,7 +132,7 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
   box-shadow: 0 13px 22px rgba(2, 4, 12, .5), inset 0 1px rgba(255,255,255,.19), inset 0 -5px rgba(0,0,0,.38);
   transition: transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, border-color .2s ease;
 }
-.game-card:hover .cartridge, .game-card:focus-visible .cartridge { transform: perspective(850px) translateY(-16px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.085); border-color: rgba(207, 215, 255, .96); box-shadow: 0 36px 49px rgba(2, 4, 12, .7), 0 0 42px rgba(142, 159, 255, .34), inset 0 1px rgba(255,255,255,.34); }
+.game-card:hover .cartridge, .game-card:focus-visible .cartridge { transform: perspective(800px) translateY(-20px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.11); border-color: rgba(215, 222, 255, 1); box-shadow: 0 40px 54px rgba(2, 4, 12, .74), 0 0 48px rgba(142, 159, 255, .38), inset 0 1px rgba(255,255,255,.38); }
 .cartridge::before { content: ""; position: absolute; top: 4px; left: 30%; right: 30%; height: 5px; border-radius: 0 0 5px 5px; background: linear-gradient(90deg, #080b14, #596079 50%, #090c15); box-shadow: 0 1px 1px rgba(255,255,255,.16); }
 .cartridge::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 35px; height: 4px; border-radius: 5px; background: #090b13; box-shadow: 0 1px rgba(255,255,255,.17); transform: translateX(-50%); }
 .cartridge-top { height: 23px; display: flex; align-items: center; justify-content: center; position: relative; }

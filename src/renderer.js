@@ -26,7 +26,7 @@ function render() {
     card.addEventListener('pointermove',event=>{
       if(event.pointerType!=='mouse')return;
       const rect=card.querySelector('.cartridge').getBoundingClientRect(),x=(event.clientX-rect.left)/rect.width,y=(event.clientY-rect.top)/rect.height;
-      card.style.setProperty('--tilt-x',`${(0.5-y)*11}deg`);card.style.setProperty('--tilt-y',`${(x-0.5)*13}deg`);
+      card.style.setProperty('--tilt-x',`${(0.5-y)*13}deg`);card.style.setProperty('--tilt-y',`${(x-0.5)*15}deg`);
       card.style.setProperty('--shine-x',`${x*100}%`);card.style.setProperty('--shine-y',`${y*100}%`);
     });
     card.addEventListener('pointerleave',()=>{card.style.setProperty('--tilt-x','0deg');card.style.setProperty('--tilt-y','0deg');card.style.setProperty('--shine-x','50%');card.style.setProperty('--shine-y','30%')});
