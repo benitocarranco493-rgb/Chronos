@@ -100,7 +100,17 @@ async function epicLibrary(session, persistSession = async () => {}) {
       url.searchParams.set('locale', 'es-ES');
       try {
         const items = await epicRequest(url, { headers: { Authorization: `Bearer ${activeSession.access_token}`, 'User-Agent': USER_AGENT } });
-        for (const [id, info] of Object.entries(items)) catalogInfo.set(`${namespace}:${id}`, info);
+        const entries = Array.isArray(items) ? items : Array.isArray(items.elements) ? items.elements : Array.isArray(items.items) ? items.items : null;
+        if (entries) {
+          for (const info of entries) {
+            const id = String(info?.id || info?.catalogItemId || info?.catalog_item_id || '');
+            if (id) catalogInfo.set(`${namespace}:${id}`, info);
+          }
+        } else {
+          for (const [id, info] of Object.entries(items)) {
+            if (info && typeof info === 'object') catalogInfo.set(`${namespace}:${id}`, info);
+          }
+        }
       } catch { /* Some entitlements have no catalog entry (for example, delisted games). */ }
     }
   }));
@@ -118,9 +128,15 @@ async function epicLibrary(session, persistSession = async () => {}) {
     if (platforms.length && !platforms.some(platform => ['Windows', 'Win32'].includes(platform))) continue;
     const catalog = catalogInfo.get(`${namespace}:${catalogItemId}`) || {};
     if (catalog.mainGameItem || record.isDLC || record.is_dlc) continue;
-    const metadata = record.metadata || catalog;
-    const image = metadata.keyImages?.find(item => ['DieselGameBoxTall', 'DieselGameBox', 'OfferImageWide'].includes(item.type))?.url || '';
-    const title = metadata.title || metadata.displayName || catalog.title || record.title || record.appName;
+    const metadata = record.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+    const titleCandidates = [catalog.title, catalog.displayName, metadata.title, metadata.displayName, record.title, record.displayName]
+      .map(value => String(value || '').trim())
+      .filter(value => value && value.toLowerCase() !== appName.toLowerCase() && value.toLowerCase() !== catalogItemId.toLowerCase());
+    const title = titleCandidates[0] || `Epic game ${appName}`;
+    const keyImages = [catalog.keyImages, metadata.keyImages, record.keyImages].flatMap(images => Array.isArray(images) ? images : []);
+    const imageTypes = ['DieselGameBoxTall', 'DieselGameBox', 'OfferImageTall', 'OfferImageWide', 'Thumbnail'];
+    const image = [...imageTypes.map(type => keyImages.find(item => item?.type === type)?.url), ...keyImages.map(item => item?.url)]
+      .find(url => typeof url === 'string' && /^https:\/\//i.test(url)) || '';
     games.push({
       id: `epic-account-${appName}`, title: String(title), platform: 'Epic', source: 'epic-account', sources: ['epic'], art: image,
       installed: false, launch: `com.epicgames.launcher://apps/${[namespace, catalogItemId, appName].map(encodeURIComponent).join('%3A')}?action=launch&silent=true`

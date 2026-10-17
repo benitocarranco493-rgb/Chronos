@@ -20,6 +20,10 @@
         target.launchOptions = [...(target.launchOptions || []), ...(target.launch ? [{ platform: target.platform, source: target.source || target.platform.toLowerCase(), launch: target.launch }] : []), ...(game.launch ? [{ platform: game.platform, source, launch: game.launch }] : [])]
           .filter((option, index, list) => list.findIndex(candidate => candidate.launch === option.launch) === index);
         if (!target.launch && game.launch) target.launch = game.launch;
+        const epicId = String(target.id || '').replace(/^epic(?:-account)?-/, '');
+        const targetTitleIsEpicPlaceholder = target.title === epicId || target.title === `Epic game ${epicId}`;
+        const discoveredTitleIsUseful = game.title && !/^Epic game\s/i.test(game.title) && game.title !== game.id?.replace(/^epic-account-/, '');
+        if (source === 'epic-account' && discoveredTitleIsUseful && (targetTitleIsEpicPlaceholder || !target.title)) target.title = game.title;
         if (game.art && !target.art) target.art = game.art;
         if (game.playtimeKnown) {
           target.playtimeMinutes = Number.isFinite(game.playtimeMinutes) ? game.playtimeMinutes : 0;
