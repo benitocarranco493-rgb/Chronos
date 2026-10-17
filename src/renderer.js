@@ -16,7 +16,13 @@ function render() {
   const shown = games.filter(g => g.title.toLowerCase().includes(query) && (showHidden||!g.hidden) && (!favoritesOnly||g.favorite) && (platform === 'all' || g.platform === platform || (g.sources||[]).some(source=>source.toLowerCase()===platform.toLowerCase()))).sort((a,b) => sort==='az'?a.title.localeCompare(b.title):sort==='played'?(b.lastPlayed||0)-(a.lastPlayed||0):sort==='platform'?a.platform.localeCompare(b.platform)||a.title.localeCompare(b.title):(b.added||0)-(a.added||0));
   $('#library-count').textContent = games.length; $('#visible-count').textContent = shown.length;
   $('#game-grid').innerHTML = shown.map((g,i) => {const labels=(g.sources?.length?g.sources:[g.platform]).map(source=>source.charAt(0).toUpperCase()+source.slice(1)).join(' · ');return `<article class="game-card" data-id="${escapeHtml(g.id)}" tabindex="0" role="button" aria-label="Details for ${escapeHtml(g.title)}"><div class="cartridge">${g.art ? `<img loading="lazy" src="${escapeHtml(g.art)}" alt="">` : labelArt(g.title,i)}${g.favorite?'<span class="card-favorite" aria-label="Favorite">★</span>':''}</div><div class="card-info"><div><strong title="${escapeHtml(g.title)}">${escapeHtml(g.title)}</strong><div class="platform-tag">${escapeHtml(labels)}</div></div></div></article>`}).join('');
-  $('#game-grid').querySelectorAll('.cartridge img').forEach((img,index)=>img.onerror=()=>{img.parentElement.innerHTML=labelArt(shown[index].title,index)});
+  $('#game-grid').querySelectorAll('.cartridge img').forEach((img,index)=>{
+    const game=games.find(item=>item.id===img.closest('.game-card')?.dataset.id);
+    const steamId=game?.id?.match(/^steam-(\d+)$/)?.[1];
+    const fallbacks=steamId?[`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/header.jpg`,`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/library_600x900.jpg`,`https://cdn.akamai.steamstatic.com/steam/apps/${steamId}/capsule_616x353.jpg`]:[];
+    const tried=new Set([img.src]);
+    img.onerror=()=>{const next=fallbacks.find(url=>!tried.has(url));if(next){tried.add(next);img.src=next;return}img.parentElement.innerHTML=labelArt(game?.title||'',index)};
+  });
   $('#empty-state').style.display = shown.length ? 'none' : 'block';
 }
 function labelArt(title,index){const words=title.split(/\s+/);return `<div class="label-art" style="--accent:${palette[index%palette.length]}"><span class="monogram">${escapeHtml(words.slice(0,2).map(x=>x[0]).join('').toUpperCase())}</span><strong>${escapeHtml(title)}</strong><small>GAME CARTRIDGE</small></div>`}

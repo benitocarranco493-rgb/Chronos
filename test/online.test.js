@@ -18,6 +18,12 @@ test('Steam library import validates SteamID64 and maps account games without ex
   assert.equal(games[0].launch, 'steam://rungameid/42');
 });
 
+test('Steam library import explains when the API omits the games list', async () => {
+  await assert.rejects(importSteamLibrary('key', steamId, async () => ({ ok: true, json: async () => ({ response: {} }) })), /make sure your game details are public/);
+  const games = await importSteamLibrary('key', steamId, async () => ({ ok: true, json: async () => ({ response: { games: [] } }) }));
+  assert.deepEqual(games, []);
+});
+
 test('SteamGridDB searches using the bearer key and returns cover choices', async () => {
   const calls = [];
   const fetchImpl = async (url, options) => {

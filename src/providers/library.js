@@ -32,7 +32,7 @@ function steamGames(roots = steamRoots()) {
           const manifest = readText(path.join(directory, file));
           const title = manifest.match(/"name"\s+"([^"]+)"/i)?.[1];
           const id = file.match(/\d+/)?.[0];
-          if (title && id) games.push({ id: `steam-${id}`, title, platform: 'Steam', source: 'steam', art: `https://cdn.akamai.steamstatic.com/steam/apps/${id}/library_600x900.jpg`, launch: `steam://rungameid/${id}` });
+          if (title && id) games.push({ id: `steam-${id}`, title, platform: 'Steam', source: 'steam', art: `https://cdn.akamai.steamstatic.com/steam/apps/${id}/header.jpg`, launch: `steam://rungameid/${id}` });
         }
       } catch { /* a library can be offline or unreadable */ }
     }
