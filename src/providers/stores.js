@@ -1,6 +1,16 @@
 const STEAM_ENDPOINT = 'https://store.steampowered.com/api/storesearch/';
 const EPIC_ENDPOINT = 'https://store.epicgames.com/graphql';
 
+async function requestJson(fetchImpl, url, options) {
+  try {
+    const response = await fetchImpl(url, options);
+    if (!response.ok) return { ok: false, data: null };
+    return { ok: true, data: await response.json() };
+  } catch {
+    return { ok: false, data: null };
+  }
+}
+
 function formatSteam(item, region) {
   const price = item.price;
   return {
@@ -32,23 +42,24 @@ async function searchStores(query, { country = 'ES', locale = 'es-ES', fetchImpl
   const steamUrl = new URL(STEAM_ENDPOINT);
   steamUrl.search = new URLSearchParams({ term, l: language, cc }).toString();
   const epicQuery = `query searchStore($keywords:String!,$country:String!,$locale:String!){Catalog{searchStore(count:12,country:$country,keywords:$keywords,locale:$locale,sortBy:"relevancy",sortDir:"DESC",start:0,withPrice:true){elements{title id productSlug urlSlug keyImages{type url} price(country:$country){totalPrice{discountPrice originalPrice discount currencyCode currencyInfo{decimals} fmtPrice(locale:$locale){discountPrice}}}}}}}`;
-  const [steamResponse, epicResponse] = await Promise.allSettled([
-    fetchImpl(steamUrl, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12000) }),
-    fetchImpl(EPIC_ENDPOINT, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ query: epicQuery, variables: { keywords: term, country: cc, locale } }), signal: AbortSignal.timeout(12000) })
+  const [steamResponse, epicResponse] = await Promise.all([
+    requestJson(fetchImpl, steamUrl, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12000) }),
+    requestJson(fetchImpl, EPIC_ENDPOINT, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ query: epicQuery, variables: { keywords: term, country: cc, locale } }), signal: AbortSignal.timeout(12000) })
   ]);
   const results = [];
-  if (steamResponse.status === 'fulfilled' && steamResponse.value.ok) {
-    const payload = await steamResponse.value.json();
-    for (const item of payload.items || []) results.push(formatSteam(item, region));
+  const steamAvailable = steamResponse.ok && Array.isArray(steamResponse.data?.items);
+  const epicItems = epicResponse.data?.data?.Catalog?.searchStore?.elements;
+  const epicAvailable = epicResponse.ok && !epicResponse.data?.errors?.length && Array.isArray(epicItems);
+  if (steamAvailable) {
+    for (const item of steamResponse.data.items) results.push(formatSteam(item, region));
   }
-  if (epicResponse.status === 'fulfilled' && epicResponse.value.ok) {
-    const payload = await epicResponse.value.json();
-    for (const item of payload.data?.Catalog?.searchStore?.elements || []) results.push(formatEpic(item, region));
+  if (epicAvailable) {
+    for (const item of epicItems) results.push(formatEpic(item, region));
   }
-  if (!results.length && [steamResponse, epicResponse].every(result => result.status === 'rejected' || !result.value?.ok)) {
+  if (!results.length && !steamAvailable && !epicAvailable) {
     throw new Error('Store search is unavailable. Check your internet connection and try again.');
   }
-  return { results, checkedAt: Date.now(), region, providers: { steam: steamResponse.status === 'fulfilled' && steamResponse.value.ok, epic: epicResponse.status === 'fulfilled' && epicResponse.value.ok } };
+  return { results, checkedAt: Date.now(), region, providers: { steam: steamAvailable, epic: epicAvailable } };
 }
 
 module.exports = { searchStores, formatSteam, formatEpic };

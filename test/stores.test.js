@@ -21,3 +21,23 @@ test('store search returns an available provider when the other is down', async 
   assert.equal(result.results.length, 1);
   assert.deepEqual(result.providers, { steam: true, epic: false });
 });
+
+test('store search keeps valid results when the other provider returns invalid JSON', async () => {
+  const responses = [
+    { ok: true, json: async () => ({ items: [{ id: 9, name: 'Valid Steam result' }] }) },
+    { ok: true, json: async () => { throw new SyntaxError('invalid JSON'); } }
+  ];
+  const result = await searchStores('Valid Steam result', { fetchImpl: async () => responses.shift() });
+  assert.equal(result.results[0].title, 'Valid Steam result');
+  assert.deepEqual(result.providers, { steam: true, epic: false });
+});
+
+test('store search treats GraphQL errors as an unavailable Epic provider', async () => {
+  const responses = [
+    { ok: true, json: async () => ({ items: [] }) },
+    { ok: true, json: async () => ({ errors: [{ message: 'catalog unavailable' }] }) }
+  ];
+  const result = await searchStores('Missing title', { fetchImpl: async () => responses.shift() });
+  assert.deepEqual(result.providers, { steam: true, epic: false });
+  assert.equal(result.results.length, 0);
+});
