@@ -1,6 +1,6 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { importSteamLibrary, searchGridArt } = require('../src/providers/online');
+const { importSteamLibrary, resolveSteamId, searchGridArt } = require('../src/providers/online');
 
 const steamId = '76561198000000000';
 
@@ -30,4 +30,25 @@ test('SteamGridDB searches using the bearer key and returns cover choices', asyn
   assert.equal(calls[0].options.headers.Authorization, 'Bearer sgdb-secret');
   assert.equal(results[0].title, 'Game');
   assert.match(results[0].url, /^https:\/\/cdn2\.steamgriddb\.com/);
+});
+
+test('Steam account import accepts a public vanity profile URL', async () => {
+  const calls = [];
+  const games = await importSteamLibrary('secret-key', 'https://steamcommunity.com/id/example-player/', async url => {
+    const request = new URL(url);
+    calls.push(request);
+    if (request.pathname.includes('ResolveVanityURL')) return { ok: true, json: async () => ({ response: { success: 1, steamid: steamId } }) };
+    return { ok: true, json: async () => ({ response: { games: [{ appid: 7, name: 'Profile Game' }] } }) };
+  });
+
+  assert.equal(calls.length, 2);
+  assert.equal(calls[0].searchParams.get('vanityurl'), 'example-player');
+  assert.equal(calls[0].searchParams.get('key'), 'secret-key');
+  assert.equal(calls[1].searchParams.get('steamid'), steamId);
+  assert.equal(games[0].title, 'Profile Game');
+});
+
+test('Steam profile resolution accepts numeric profile URLs and rejects unrelated domains', async () => {
+  assert.equal(await resolveSteamId(`https://steamcommunity.com/profiles/${steamId}`), steamId);
+  await assert.rejects(resolveSteamId('https://example.com/id/someone', 'key'), /steamcommunity\.com/);
 });
