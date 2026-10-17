@@ -32,3 +32,10 @@ The Windows NSIS installer and portable build have been generated successfully o
 - Optional Steam library import by SteamID64 and SteamGridDB cover search are available when their keys are saved in OS secure storage.
 
 Heroic Amazon detection depends on Nile local metadata. Riot detection supports products with valid `RiotClientInstalls.json` records (League of Legends, VALORANT, and Legends of Runeterra); Battle.net detection checks common Windows install folders for known games. Nonstandard Windows paths and direct Linux Riot/Battle.net integration are not covered. Steam Web API import requires a 17-digit SteamID64 and a visible games profile. SteamGridDB images selected in Chronos are downloaded to the local user data directory. Epic's public GraphQL endpoint returned HTTP 403 in the Windows check, so Chronos offers its official browse search as a fallback; Epic price comparisons remain unavailable until the service accepts the request. Lutris reads its local SQLite database through Node's built-in SQLite support, with a config-file fallback.
+
+## Windows troubleshooting
+
+- **Steam shows only installed games:** use **Import Steam library** with a saved Web API key and a profile whose game details are public. A local launcher scan does not import uninstalled games.
+- **Cover search says no artwork:** open a game's details and choose **Find cover art**. SteamGridDB needs its own saved API key; Steam store images and local title labels remain the fallback.
+- **Epic has no in-app results:** the public Epic catalog query currently returns HTTP 403 in the Windows environment. Use the Epic search fallback button; local Epic installations discovered by Heroic are unaffected.
+- **A game does not launch:** verify its launcher is installed and registered with Windows, or use **Locate again** to select its executable.
