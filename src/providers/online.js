@@ -4,6 +4,17 @@ const STEAM_ACHIEVEMENTS_API = 'https://api.steampowered.com/ISteamUserStats/Get
 const STEAM_SCHEMA_API = 'https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/';
 const GRID_API = 'https://www.steamgriddb.com/api/v2';
 
+function steamAchievementIconSources(value) {
+  const raw = String(value || '').trim();
+  if (!raw) return [];
+  const secureUrl = raw.startsWith('//') ? `https:${raw}` : raw.replace(/^http:\/\//i, 'https://');
+  if (!/^https:\/\//i.test(secureUrl)) return [];
+  const sources = [secureUrl];
+  const legacyPath = secureUrl.match(/^https:\/\/(?:media\.steampowered\.com|steamcdn-a\.akamaihd\.net)\/steamcommunity\/public\/images\/apps\/(\d+)\/([^?#]+)/i);
+  if (legacyPath) sources.push(`https://shared.fastly.steamstatic.com/community_assets/images/apps/${legacyPath[1]}/${legacyPath[2]}`);
+  return sources;
+}
+
 async function resolveSteamId(profile, apiKey, fetchImpl = fetch) {
   const input = String(profile || '').trim();
   if (/^\d{17}$/.test(input)) return input;
@@ -102,12 +113,9 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
     const unlocked = Number(progress?.achieved) === 1;
     const hidden = Number(item.hidden) === 1 && !unlocked;
     const rawIcons = unlocked
-      ? [item.icon, item.icon_gray, item.icongray, progress?.icon, progress?.icon_gray, progress?.icongray]
-      : [item.icongray, item.icon_gray, item.icon, progress?.icongray, progress?.icon_gray, progress?.icon];
-    const icons = [...new Set(rawIcons.map(value => {
-      const url = String(value || '').trim();
-      return url.startsWith('//') ? `https:${url}` : url;
-    }).filter(url => /^https:\/\//i.test(url)))].slice(0, 3);
+      ? [item.icon, item.iconGray, item.icon_gray, item.icongray, progress?.icon, progress?.iconGray, progress?.icon_gray, progress?.icongray]
+      : [item.icongray, item.iconGray, item.icon_gray, item.icon, progress?.icongray, progress?.iconGray, progress?.icon_gray, progress?.icon];
+    const icons = [...new Set(rawIcons.flatMap(steamAchievementIconSources))].slice(0, 6);
     return {
       name: hidden ? 'Secret achievement' : String(item.displayName || item.name || item.apiname || 'Achievement').slice(0, 120),
       description: hidden ? 'Unlock this achievement to reveal its details.' : String(item.description || '').slice(0, 400),
