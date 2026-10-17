@@ -26,6 +26,7 @@ The Windows NSIS installer and portable build have been generated successfully o
 - Windows and Linux desktop shell using Electron.
 - Local Steam app manifest scanning (including extra libraries), Heroic Epic/GOG/Amazon discovery, Lutris/Flatpak on Linux, and common Windows Riot/Battle.net installs.
 - Manual entries and cartridge label artwork when a cover is missing.
+- A responsive cartridge shelf with prominent cover art, launcher badges, and compact top navigation.
 - Search, platform filtering, favorites, sorting by name/platform/activity, editable game details, launch-target selection, relocalization, remove, and launch status.
 - Lazy cover loading and generated local labels when artwork is missing or unavailable.
 - In-app Steam search with regional prices, discounts, artwork, and official listing links. When Epic catalog search is unavailable, Chronos opens the official Epic browse page in a sandboxed Chronos window; Epic prices remain unavailable.

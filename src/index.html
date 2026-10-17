@@ -1,19 +1,20 @@
 <!doctype html>
 <html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' file: https: data:; font-src 'self' data:; connect-src 'none'; object-src 'none'; base-uri 'self'; form-action 'self'"><title>Chronos</title><link rel="stylesheet" href="styles.css"></head>
 <body>
-  <aside class="sidebar">
-    <div class="brand"><div class="brand-mark">C</div><span>CHRONOS<small>GAME SHELF</small></span></div>
-    <div class="nav-label">YOUR SPACE</div>
-    <button class="nav-item active" data-page="library"><span>▦</span> Collection <b id="library-count">0</b></button>
-    <button class="nav-item" data-page="stores"><span>⌕</span> Store browser</button>
-    <button class="nav-item" data-page="settings"><span>⚙</span> Settings</button>
-    <div class="side-bottom"><div class="profile-dot">D</div><div>MY LIBRARY<small>LOCAL COLLECTION</small></div><button class="icon-button" id="settings-shortcut" title="Settings">···</button></div>
-  </aside>
+  <header class="topbar">
+    <div class="brand" aria-label="Chronos game library"><span class="brand-mark">C</span><span class="brand-word">CHRONOS<small>GAME LIBRARY</small></span></div>
+    <label class="search global-search"><span>⌕</span><input id="search" placeholder="Search your games…" aria-label="Search games"></label>
+    <nav class="top-nav" aria-label="Main navigation">
+      <button class="nav-item active" data-page="library"><span>▦</span> Library <b id="library-count">0</b></button>
+      <button class="nav-item" data-page="stores"><span>⌕</span> Store</button>
+    </nav>
+    <div class="header-actions"><button class="quiet icon-button" id="settings-shortcut" title="Settings" aria-label="Settings">⚙</button><button class="quiet" id="refresh">↻ <span>Scan</span></button><button class="add-button" id="add-game">＋ <span>Add game</span></button></div>
+    <span class="crumb hidden" id="crumb-page">COLLECTION</span>
+  </header>
   <main>
-    <header><div class="crumb">MY SHELF <span>/</span> <strong id="crumb-page">COLLECTION</strong></div><div class="header-actions"><button class="quiet" id="refresh">↻ &nbsp;Scan launchers</button><button class="add-button" id="add-game">＋ Add game</button></div></header>
     <section id="library-page" class="page">
-      <div class="hero"><div class="hero-content"><div class="eyebrow"><i></i> YOUR PERSONAL ARCADE</div><h1>Every game has<br>a place on the shelf.</h1><p>Bring your libraries together. Pick a cartridge and jump back in.</p><div class="hero-buttons"><button class="add-button" id="hero-add">＋ &nbsp;Add your first game</button><button class="quiet" id="steam-import-shortcut">Import Steam library</button><button class="quiet" data-goto="stores">Browse the stores <span>↗</span></button></div></div><div class="hero-art"><div class="orbit orbit-one"></div><div class="orbit orbit-two"></div><div class="hero-cart">CHRONOS<span>INSERT COIN</span></div><div class="spark s1">✳</div><div class="spark s2">✦</div></div><div class="hero-index">VOL. 01 <span>—</span> THE COLLECTION</div></div>
-      <div class="shelf-heading"><div><div class="eyebrow muted">THE CARTRIDGE WALL</div><h2>Your collection <span id="visible-count">0</span></h2></div><div class="controls"><label class="search"><span>⌕</span><input id="search" placeholder="Find a game..."></label><select id="platform-filter"><option value="all">All platforms</option><option>Steam</option><option>Heroic</option><option>Lutris</option><option>Flatpak</option><option>Epic</option><option>Battle.net</option><option>Riot</option><option>Manual</option></select><select id="sort"><option value="recent">Recently added</option><option value="played">Recently played</option><option value="az">A to Z</option><option value="platform">Platform</option></select><button class="quiet" id="favorites-filter" aria-pressed="false">☆ Favorites</button><button class="quiet" id="hidden-filter" aria-pressed="false">Show hidden</button></div></div>
+      <div class="library-banner"><div class="banner-copy"><div class="eyebrow"><i></i> YOUR GAMES, TOGETHER</div><h1>One shelf.<br><span>Every adventure.</span></h1><p>All your launchers, one place to jump back in.</p></div><div class="banner-stats"><div class="stat-orbit"><span>CHRONOS<br>COLLECTION</span><b id="banner-count">00</b></div><small>GAMES ON YOUR SHELF</small><button class="quiet" id="steam-import-shortcut">Import Steam library <span>↗</span></button></div><div class="banner-glow"></div></div>
+      <div class="shelf-heading"><div class="shelf-title"><div class="eyebrow muted">THE CARTRIDGE WALL</div><h2>All games <span id="visible-count">0</span></h2></div><div class="controls"><select id="platform-filter" aria-label="Filter platform"><option value="all">All platforms</option><option>Steam</option><option>Heroic</option><option>Lutris</option><option>Flatpak</option><option>Epic</option><option>Battle.net</option><option>Riot</option><option>Manual</option></select><select id="sort" aria-label="Sort games"><option value="recent">Recently added</option><option value="played">Recently played</option><option value="az">A to Z</option><option value="platform">Platform</option></select><button class="quiet" id="favorites-filter" aria-pressed="false">☆ Favorites</button><button class="quiet" id="hidden-filter" aria-pressed="false">Show hidden</button></div></div>
       <div class="scan-status" id="scan-status" role="status" aria-live="polite"></div>
       <div class="game-grid" id="game-grid"></div>
       <div class="empty-state" id="empty-state"><div class="empty-cart">+</div><h3>Your shelf is waiting</h3><p>Scan for installed games or add a favorite to get started.</p><div><button class="add-button" id="empty-scan">Scan my PC</button><button class="quiet" id="empty-add">Add manually</button></div></div>

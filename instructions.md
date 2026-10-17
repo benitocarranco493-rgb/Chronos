@@ -71,7 +71,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Añadir favoritos y una vista de actividad reciente sin sacrificar navegación con teclado, contraste o escalado de ventana.
 - Revisar la identidad visual, iconos y recursos para asegurar que Chronos tiene una marca propia.
 
-**Estado:** favoritos filtrables, vistas ordenables por nombre/plataforma/actividad, carga diferida de carátulas y arte tipográfico local de respaldo. Steam prueba varias imágenes alternativas antes de usar la etiqueta local. La búsqueda/selección de arte de SteamGridDB y su descarga local están implementadas en la Fase 6. La búsqueda envía los filtros booleanos documentados y presenta errores de autorización del API. El paquete Windows incorpora un icono propio de Chronos.
+**Estado:** favoritos filtrables, vistas ordenables por nombre/plataforma/actividad, carga diferida de carátulas y arte tipográfico local de respaldo. La interfaz usa una barra superior compacta, un fondo luminoso propio y cartuchos con marco, plataforma y carátula destacada, adaptables a distintos tamaños. Steam prueba varias imágenes alternativas antes de usar la etiqueta local. La búsqueda/selección de arte de SteamGridDB y su descarga local están implementadas en la Fase 6. La búsqueda envía los filtros booleanos documentados y presenta errores de autorización del API. El paquete Windows incorpora un icono propio de Chronos.
 
 **Criterio de salida:** una colección sin conexión o sin ilustraciones sigue siendo completa, legible y fácil de navegar.
 
