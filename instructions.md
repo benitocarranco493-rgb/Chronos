@@ -97,7 +97,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Explicar con claridad qué datos añade cada clave y qué ocurre si está ausente, es inválida o el servicio no responde.
 - Mantener el launcher utilizable sin configurar ninguna clave.
 
-**Estado:** importar juegos visibles de Steam usando clave segura y SteamID64; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación está limitada por la visibilidad del perfil de Steam.
+**Estado:** importar la biblioteca visible de Steam (incluidos juegos no instalados) usando clave segura y SteamID64; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación está limitada por la visibilidad del perfil de Steam. El escaneo local solo detecta juegos instalados.
 
 **Criterio de salida:** claves opcionales guardadas de forma segura activan sus funciones y se pueden borrar; una instalación sin claves conserva todas las funciones locales.
 
