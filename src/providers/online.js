@@ -1,6 +1,6 @@
 const STEAM_API = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/';
 const STEAM_RESOLVE_API = 'https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/';
-const STEAM_ACHIEVEMENTS_API = 'https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/';
+const STEAM_ACHIEVEMENTS_API = 'https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v1/';
 const STEAM_SCHEMA_API = 'https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/';
 const GRID_API = 'https://www.steamgriddb.com/api/v2';
 
@@ -53,14 +53,25 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
   if (!/^\d{1,10}$/.test(gameId)) throw new Error('This Steam game has an invalid app ID.');
   const steamId = await resolveSteamId(steamProfile, apiKey, fetchImpl);
   const playerUrl = new URL(STEAM_ACHIEVEMENTS_API);
-  playerUrl.search = new URLSearchParams({ key: apiKey, steamid: steamId, appid: gameId, l: 'english', format: 'json' }).toString();
+  playerUrl.search = new URLSearchParams({ key: apiKey, steamid: steamId, appid: gameId, l: 'english' }).toString();
   const schemaUrl = new URL(STEAM_SCHEMA_API);
   schemaUrl.search = new URLSearchParams({ key: apiKey, appid: gameId, l: 'english', format: 'json' }).toString();
   const [playerResponse, schemaResponse] = await Promise.all([
     fetchImpl(playerUrl, { signal: AbortSignal.timeout(15000) }),
     fetchImpl(schemaUrl, { signal: AbortSignal.timeout(15000) })
   ]);
-  if (!playerResponse.ok) throw new Error(`Steam achievements returned HTTP ${playerResponse.status}. Check that game details are public.`);
+  if (!playerResponse.ok) {
+    let reason = '';
+    try {
+      const body = await playerResponse.text();
+      try {
+        const payload = JSON.parse(body);
+        reason = payload?.playerstats?.error || payload?.error || payload?.response?.error || '';
+      } catch { reason = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 180); }
+    } catch { /* Steam may return an empty error response. */ }
+    const explanation = reason ? ` Steam says: ${reason}` : ' Check that game details are public and the game exposes achievement stats.';
+    throw new Error(`Steam achievements returned HTTP ${playerResponse.status}.${explanation}`);
+  }
   const playerStats = (await playerResponse.json())?.playerstats;
   if (playerStats?.success !== true || !Array.isArray(playerStats.achievements)) {
     throw new Error('Steam did not return achievements for this game. The profile may be private, or the game may not expose achievement stats.');
