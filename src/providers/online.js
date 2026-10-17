@@ -69,12 +69,23 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
         reason = payload?.playerstats?.error || payload?.error || payload?.response?.error || '';
       } catch { reason = body.replace(/<[^>]*>/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 180); }
     } catch { /* Steam may return an empty error response. */ }
-    const explanation = reason ? ` Steam says: ${reason}` : ' Check that game details are public and the game exposes achievement stats.';
-    throw new Error(`Steam achievements returned HTTP ${playerResponse.status}.${explanation}`);
+    const normalizedReason = reason.toLowerCase();
+    if (normalizedReason.includes('requested app has no stats') || normalizedReason.includes('no stats')) {
+      return { unavailable: true, unavailableReason: 'This game does not publish achievement stats through Steam.' };
+    }
+    if (playerResponse.status === 403 && normalizedReason.includes('profile is not public')) {
+      return { unavailable: true, unavailableReason: 'Set your Steam profile and game details to Public to view achievements.' };
+    }
+    return {
+      unavailable: true,
+      unavailableReason: playerResponse.status === 403
+        ? 'Steam is not allowing achievement access. Check your profile visibility and API key.'
+        : `Steam could not load achievements (HTTP ${playerResponse.status}). Try again later.`
+    };
   }
   const playerStats = (await playerResponse.json())?.playerstats;
   if (playerStats?.success !== true || !Array.isArray(playerStats.achievements)) {
-    throw new Error('Steam did not return achievements for this game. The profile may be private, or the game may not expose achievement stats.');
+    return { unavailable: true, unavailableReason: 'Steam did not provide achievement data for this game.' };
   }
 
   let schemaAchievements = [];

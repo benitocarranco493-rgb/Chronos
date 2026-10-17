@@ -69,6 +69,7 @@ function openDetails(id){
     $('#achievement-message').textContent='Loading achievements from Steam…';
     window.chronos.loadSteamGameDetails(steamAppId,settings.steamId).then(details=>{
       if(selectedGameId!==id)return;
+      if(details.unavailable){$('#achievement-count').textContent='Achievements unavailable';$('#achievement-message').textContent=details.unavailableReason||'Steam does not provide achievements for this game.';return}
       renderAchievements(details);$('#achievement-message').textContent=details.total?'':`No achievement list is available for ${details.gameName||game.title}.`;
     }).catch(error=>{if(selectedGameId!==id)return;$('#achievement-message').textContent=error.message||'Steam achievements could not be loaded.'});
   }
