@@ -117,6 +117,7 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
   min-height: 37px; padding: 0 30px 0 12px; border: 1px solid var(--line); border-radius: 10px;
   color: #d9def2; background-color: #171a2b; font-size: 11px;
 }
+.controls select { max-width: 190px; }
 .controls .quiet { min-height: 37px; padding: 0 11px; font-size: 11px; }
 #favorites-filter[aria-pressed="true"], #hidden-filter[aria-pressed="true"] { border-color: rgba(145, 244, 211, .6); color: var(--mint); background: rgba(45, 104, 94, .25); }
 .scan-status { min-height: 18px; margin: 0 0 8px; color: #aeb6cf; font: 10px Consolas, monospace; letter-spacing: .1px; }
@@ -213,6 +214,8 @@ dialog { width: min(470px, calc(100vw - 30px)); padding: 26px; border: 1px solid
 dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 #game-form h2, #welcome-dialog h2 { margin: -6px 0 5px; font-size: 23px; font-weight: 650; }
 #game-form label { display: flex; flex-direction: column; gap: 6px; color: #d5d9ea; font-size: 11px; }
+.checkbox-label { flex-direction: row !important; align-items: center; gap: 9px !important; cursor: pointer; }
+#game-form .checkbox-label input { width: 16px; min-height: 16px; accent-color: var(--mint); }
 .label-hint { display: inline; color: #929ab6; font-size: 10px; }
 .label-hint:not(label .label-hint) { display: none; }
 #game-form input, #game-form select { width: 100%; min-height: 39px; padding: 0 11px; border: 1px solid var(--line); border-radius: 9px; outline: 0; color: var(--text); background: #0d1120; font-size: 12px; }
