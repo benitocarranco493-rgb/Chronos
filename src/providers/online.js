@@ -51,14 +51,24 @@ async function searchGridArt(apiKey, title, fetchImpl = fetch) {
   const response = await fetchImpl(`${GRID_API}/search/autocomplete/${encodeURIComponent(query)}`, { headers: { Authorization: `Bearer ${apiKey}` }, signal: AbortSignal.timeout(12000) });
   if (!response.ok) throw new Error(`SteamGridDB returned HTTP ${response.status}. Check the key and connection.`);
   const payload = await response.json();
-  const games = (payload.data || []).slice(0, 5);
+  const games = (Array.isArray(payload.data) ? payload.data : []).map(item => item?.data && typeof item.data === 'object' ? item.data : item).filter(game => game && game.id).slice(0, 5);
+  const failures = [];
   const grids = await Promise.all(games.map(async game => {
-    const result = await fetchImpl(`${GRID_API}/grids/game/${encodeURIComponent(game.id)}?dimensions=600x900&types=static&nsfw=0&humor=0`, { headers: { Authorization: `Bearer ${apiKey}` }, signal: AbortSignal.timeout(12000) });
-    if (!result.ok) return [];
+    const params = new URLSearchParams({ dimensions: '600x900,342x482', types: 'static', nsfw: 'false', humor: 'false' });
+    const result = await fetchImpl(`${GRID_API}/grids/game/${encodeURIComponent(game.id)}?${params}`, { headers: { Authorization: `Bearer ${apiKey}` }, signal: AbortSignal.timeout(12000) });
+    if (!result.ok) {
+      if (result.status !== 404) failures.push(result.status);
+      return [];
+    }
     const data = await result.json();
-    return (data.data || []).slice(0, 6).map(item => ({ title: game.name, url: item.url, thumb: item.thumbs?.small || item.url }));
+    return (data.data || []).slice(0, 6).map(item => ({ title: game.name, url: item.url, thumb: item.thumbs?.small || item.thumb || item.url }));
   }));
-  return grids.flat().slice(0, 12);
+  const results = grids.flat().slice(0, 12);
+  if (!results.length && failures.length) {
+    const status = failures.includes(401) ? 401 : failures.includes(403) ? 403 : failures[0];
+    throw new Error(`SteamGridDB artwork lookup returned HTTP ${status}. Check that the saved API key is valid and try again.`);
+  }
+  return results;
 }
 
 module.exports = { importSteamLibrary, resolveSteamId, searchGridArt };

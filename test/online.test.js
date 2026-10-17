@@ -34,8 +34,19 @@ test('SteamGridDB searches using the bearer key and returns cover choices', asyn
   };
   const results = await searchGridArt('sgdb-secret', 'Game', fetchImpl);
   assert.equal(calls[0].options.headers.Authorization, 'Bearer sgdb-secret');
+  assert.equal(new URL(calls[1].url).searchParams.get('nsfw'), 'false');
+  assert.equal(new URL(calls[1].url).searchParams.get('humor'), 'false');
+  assert.equal(new URL(calls[1].url).searchParams.get('dimensions'), '600x900,342x482');
   assert.equal(results[0].title, 'Game');
   assert.match(results[0].url, /^https:\/\/cdn2\.steamgriddb\.com/);
+});
+
+test('SteamGridDB artwork authorization errors are shown instead of reported as no covers', async () => {
+  let calls = 0;
+  const fetchImpl = async () => ++calls === 1
+    ? { ok: true, json: async () => ({ data: [{ id: 9, name: 'Game' }] }) }
+    : { ok: false, status: 401 };
+  await assert.rejects(searchGridArt('invalid-key', 'Game', fetchImpl), /artwork lookup returned HTTP 401/);
 });
 
 test('Steam account import accepts a public vanity profile URL', async () => {
