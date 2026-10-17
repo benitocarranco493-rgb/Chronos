@@ -6,9 +6,18 @@ const { pathToFileURL } = require('node:url');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
+const { createGameLauncher } = require('./providers/launch');
 const { searchStores } = require('./providers/stores');
 const { importSteamLibrary, searchGridArt } = require('./providers/online');
 const { autoUpdater } = require('electron-updater');
+
+const launchGame = createGameLauncher({
+  platform: process.platform,
+  shell,
+  findRiotClient,
+  findBattleNetClient,
+  execFile: require('node:child_process').execFile
+});
 
 const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
@@ -78,29 +87,7 @@ ipcMain.handle('art:download', async (_event, imageUrl) => {
   fs.writeFileSync(filePath, bytes);
   return pathToFileURL(filePath).href;
 });
-ipcMain.handle('game:launch', async (_event, target) => {
-  if (typeof target !== 'string' || !target) return false;
-  const riot = target.match(/^riot:\/\/launch\/(league_of_legends|valorant|bacon)\/([a-z0-9_-]+)$/i);
-  const battleNet = target.match(/^battlenet:\/\/launch\/(wow|pro|fen|d3|osi|s2|hs|w3)$/i);
-  if (process.platform === 'win32' && (riot || battleNet)) {
-    const executable = riot ? findRiotClient() : findBattleNetClient();
-    if (!executable) return false;
-    const args = riot ? [`--launch-product=${riot[1]}`, `--launch-patchline=${riot[2]}`] : [`--exec=launch ${battleNet[1]}`];
-    const { execFile } = require('node:child_process');
-    return new Promise(resolve => execFile(executable, args, { windowsHide: true }, error => resolve(!error)));
-  }
-  if (/^https?:\/\//i.test(target) || /^(steam|epic|heroic|com\.heroicgameslauncher\.|lutris):\/\//i.test(target) || /^lutris:rungame\//i.test(target)) {
-    try { await shell.openExternal(target); return true; } catch { return false; }
-  }
-  if (process.platform === 'win32') return shell.openPath(target).then(error => !error);
-  const { execFile } = require('node:child_process');
-  return new Promise(resolve => {
-    const parts = target.match(/(?:"([^"]*)"|'([^']*)'|\S+)/g) || [];
-    const bin = (parts.shift() || '').replace(/^(?:"|')|(?:"|')$/g, '');
-    const args = parts.map(part => part.replace(/^(?:"|')|(?:"|')$/g, ''));
-    execFile(bin, args, error => resolve(!error));
-  });
-});
+ipcMain.handle('game:launch', (_event, target) => launchGame(target));
 ipcMain.handle('store:open', (_event, url) => {
   if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return false;
   return shell.openExternal(url);
