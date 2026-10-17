@@ -58,7 +58,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Animar el cartucho seleccionado hacia el dock, mostrar el estado de lanzamiento y devolverlo a la estantería si falla.
 - Añadir una ficha de juego con metadatos, tienda de origen, ruta/estado y acciones.
 
-**Estado:** ficha de juego para ver metadatos y destino, editar campos, elegir entre varios lanzadores detectados, volver a localizar el archivo, quitar y lanzar con mensaje visible si falla. El lanzamiento usa protocolos registrados, ejecutables seleccionados y `execFile` en Linux para comandos como Flatpak. Las pruebas simulan el enrutamiento Windows de Steam, Riot, Battle.net y ejecutables; aún falta validar lanzamientos reales en Windows y Linux en la Fase 8.
+**Estado:** al seleccionar un cartucho se abre una ficha animada con carátula, acción de lanzamiento, tiempo jugado y última apertura cuando esos datos están disponibles, estado de instalación, fuentes y destinos. Incluye editar, elegir entre varios lanzadores detectados, volver a localizar, quitar y lanzar con mensaje visible si falla. Para juegos de Steam muestra progreso y lista de logros cuando la API devuelve los datos del perfil público. El lanzamiento usa protocolos registrados, ejecutables seleccionados y `execFile` en Linux para comandos como Flatpak. Las pruebas simulan el enrutamiento Windows de Steam, Riot, Battle.net y ejecutables; aún falta validar lanzamientos reales en Windows y Linux en la Fase 8.
 
 **Criterio de salida:** las entradas se pueden iniciar por el mecanismo correcto en cada sistema y cualquier fallo ofrece un mensaje útil sin cerrar Chronos.
 
@@ -97,7 +97,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Explicar con claridad qué datos añade cada clave y qué ocurre si está ausente, es inválida o el servicio no responde.
 - Mantener el launcher utilizable sin configurar ninguna clave.
 
-**Estado:** importar la biblioteca visible de Steam (incluidos juegos no instalados) usando clave segura y SteamID64, URL pública o nombre personalizado de perfil; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación está limitada por la visibilidad del perfil de Steam; si Steam no devuelve una lista, Chronos indica que se revise la privacidad de los detalles de juego. Hay acceso directo a importar desde la estantería. El escaneo local solo detecta juegos instalados.
+**Estado:** importar la biblioteca visible de Steam (incluidos juegos no instalados) usando clave segura y SteamID64, URL pública o nombre personalizado de perfil; buscar carátulas de SteamGridDB, elegir una y descargarla en datos locales. Las fichas Steam pueden pedir la lista del usuario y el esquema del juego para presentar logros desbloqueados, totales, nombres e iconos; las horas se toman de la importación de biblioteca y se conservan al combinar con juegos instalados. Las API se llaman desde el proceso principal; el renderer no recibe claves. La importación y los logros dependen de la visibilidad del perfil y de que el juego publique estadísticas. Hay acceso directo a importar desde la estantería. El escaneo local solo detecta juegos instalados.
 
 **Criterio de salida:** claves opcionales guardadas de forma segura activan sus funciones y se pueden borrar; una instalación sin claves conserva todas las funciones locales.
 

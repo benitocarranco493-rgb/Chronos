@@ -1,5 +1,7 @@
 const STEAM_API = 'https://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/';
 const STEAM_RESOLVE_API = 'https://api.steampowered.com/ISteamUser/ResolveVanityURL/v1/';
+const STEAM_ACHIEVEMENTS_API = 'https://api.steampowered.com/ISteamUserStats/GetPlayerAchievements/v0001/';
+const STEAM_SCHEMA_API = 'https://api.steampowered.com/ISteamUserStats/GetSchemaForGame/v2/';
 const GRID_API = 'https://www.steamgriddb.com/api/v2';
 
 async function resolveSteamId(profile, apiKey, fetchImpl = fetch) {
@@ -40,8 +42,53 @@ async function importSteamLibrary(apiKey, steamProfile, fetchImpl = fetch) {
   return ownedGames.map(game => ({
     id: `steam-${game.appid}`, title: game.name || `Steam app ${game.appid}`, platform: 'Steam', source: 'steam-account', sources: ['steam-account'],
     art: `https://cdn.akamai.steamstatic.com/steam/apps/${game.appid}/header.jpg`,
-    launch: `steam://rungameid/${game.appid}`, playtimeMinutes: Number(game.playtime_forever) || 0, installed: false
+    launch: `steam://rungameid/${game.appid}`, playtimeMinutes: Number(game.playtime_forever) || 0,
+    playtimeKnown: Number.isFinite(Number(game.playtime_forever)), installed: false
   }));
+}
+
+async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetch) {
+  if (!apiKey) throw new Error('Save a Steam Web API key in Settings to load achievements.');
+  const gameId = String(appId || '');
+  if (!/^\d{1,10}$/.test(gameId)) throw new Error('This Steam game has an invalid app ID.');
+  const steamId = await resolveSteamId(steamProfile, apiKey, fetchImpl);
+  const playerUrl = new URL(STEAM_ACHIEVEMENTS_API);
+  playerUrl.search = new URLSearchParams({ key: apiKey, steamid: steamId, appid: gameId, l: 'english', format: 'json' }).toString();
+  const schemaUrl = new URL(STEAM_SCHEMA_API);
+  schemaUrl.search = new URLSearchParams({ key: apiKey, appid: gameId, l: 'english', format: 'json' }).toString();
+  const [playerResponse, schemaResponse] = await Promise.all([
+    fetchImpl(playerUrl, { signal: AbortSignal.timeout(15000) }),
+    fetchImpl(schemaUrl, { signal: AbortSignal.timeout(15000) })
+  ]);
+  if (!playerResponse.ok) throw new Error(`Steam achievements returned HTTP ${playerResponse.status}. Check that game details are public.`);
+  const playerStats = (await playerResponse.json())?.playerstats;
+  if (playerStats?.success !== true || !Array.isArray(playerStats.achievements)) {
+    throw new Error('Steam did not return achievements for this game. The profile may be private, or the game may not expose achievement stats.');
+  }
+
+  let schemaAchievements = [];
+  if (schemaResponse.ok) {
+    try {
+      const schema = (await schemaResponse.json())?.game?.availableGameStats?.achievements;
+      if (Array.isArray(schema)) schemaAchievements = schema;
+    } catch { /* Achievement unlocks still work without localized schema details. */ }
+  }
+  const unlockedByName = new Map(playerStats.achievements.map(item => [item.apiname, item]));
+  const definitions = schemaAchievements.length ? schemaAchievements : playerStats.achievements;
+  const achievements = definitions.slice(0, 500).map(item => {
+    const progress = unlockedByName.get(item.name || item.apiname);
+    const unlocked = Number(progress?.achieved) === 1;
+    const hidden = Number(item.hidden) === 1 && !unlocked;
+    return {
+      name: hidden ? 'Secret achievement' : String(item.displayName || item.name || item.apiname || 'Achievement').slice(0, 120),
+      description: hidden ? 'Unlock this achievement to reveal its details.' : String(item.description || '').slice(0, 400),
+      icon: String(unlocked ? (item.icon || item.icon_gray || '') : (item.icongray || item.icon_gray || item.icon || '')).slice(0, 2048),
+      unlocked,
+      unlockTime: Number(progress?.unlocktime) || 0
+    };
+  });
+  const unlocked = achievements.filter(item => item.unlocked).length;
+  return { gameName: String(playerStats.gameName || '').slice(0, 200), unlocked, total: achievements.length, totalKnown: schemaAchievements.length > 0, achievements };
 }
 
 async function searchGridArt(apiKey, title, fetchImpl = fetch) {
@@ -71,4 +118,4 @@ async function searchGridArt(apiKey, title, fetchImpl = fetch) {
   return results;
 }
 
-module.exports = { importSteamLibrary, resolveSteamId, searchGridArt };
+module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, searchGridArt };

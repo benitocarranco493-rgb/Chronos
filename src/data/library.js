@@ -21,6 +21,10 @@
           .filter((option, index, list) => list.findIndex(candidate => candidate.launch === option.launch) === index);
         if (!target.launch && game.launch) target.launch = game.launch;
         if (game.art && !target.art) target.art = game.art;
+        if (game.playtimeKnown) {
+          target.playtimeMinutes = Number.isFinite(game.playtimeMinutes) ? game.playtimeMinutes : 0;
+          target.playtimeKnown = true;
+        }
         continue;
       }
 

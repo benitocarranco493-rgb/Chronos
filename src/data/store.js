@@ -19,6 +19,7 @@ function cleanGame(game) {
     lastPlayed: Number.isFinite(game.lastPlayed) ? game.lastPlayed : 0,
     installed: game.installed === false ? false : game.installed === true,
     playtimeMinutes: Number.isFinite(game.playtimeMinutes) ? Math.max(0, game.playtimeMinutes) : 0,
+    playtimeKnown: game.playtimeKnown === true || (Number.isFinite(game.playtimeMinutes) && game.playtimeMinutes > 0),
     hidden: game.hidden === true
   };
 }

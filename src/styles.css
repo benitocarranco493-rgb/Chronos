@@ -229,6 +229,95 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 #welcome-dialog h2 { margin: 9px 0; }
 #welcome-dialog p { color: #bbc2d7; font-size: 12px; line-height: 1.6; }
 
+.detail-dialog { width: min(1120px, calc(100vw - 56px)); max-height: min(850px, calc(100vh - 48px)); padding: 0; overflow: hidden; }
+.detail-dialog[open] .detail-layout { animation: detail-enter .32s cubic-bezier(.2,.8,.2,1) both; }
+.detail-layout { min-height: 610px; max-height: min(850px, calc(100vh - 48px)); display: grid; grid-template-columns: minmax(250px, 32%) minmax(0, 1fr); }
+.detail-art-panel { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px; padding: 54px 28px 28px; overflow: hidden; border-right: 1px solid var(--line); background: radial-gradient(ellipse at 50% 39%, rgba(162,145,255,.23), transparent 62%), linear-gradient(160deg, rgba(48,52,87,.78), rgba(15,20,35,.94)); }
+.detail-art-panel::before, .detail-art-panel::after { content: ""; position: absolute; width: 240px; height: 240px; border: 1px solid rgba(190,200,255,.1); border-radius: 50%; pointer-events: none; }
+.detail-art-panel::before { transform: scaleX(1.35) rotate(-35deg); }
+.detail-art-panel::after { transform: scaleX(.78) rotate(35deg); }
+.detail-dialog .dialog-close { z-index: 3; top: 17px; right: 19px; width: 34px; height: 34px; border: 1px solid var(--line); border-radius: 10px; color: #d6daeb; background: rgba(12,16,29,.64); font-size: 22px; }
+.detail-cartridge { width: min(235px, 100%); aspect-ratio: .72; position: relative; z-index: 1; display: flex; flex-direction: column; padding: 10px 11px 14px; border: 1px solid rgba(211,216,255,.35); border-radius: 19px 19px 23px 23px; background: linear-gradient(110deg,#626980,#252b40 9%,#131827 24%,#131827 82%,#555b71); box-shadow: 0 24px 44px rgba(0,0,0,.54), 0 0 38px rgba(169,151,255,.13), inset 0 1px rgba(255,255,255,.23), inset 0 -6px rgba(0,0,0,.35); }
+.detail-cartridge::before { content: ""; position: absolute; top: 4px; left: 36%; width: 28%; height: 7px; border-radius: 0 0 5px 5px; background: #090c16; box-shadow: 0 1px rgba(255,255,255,.2); }
+.detail-cartridge-top { height: 34px; display: grid; place-items: center; color: #e4e7f4; font: 700 9px Consolas,monospace; letter-spacing: 1.6px; }
+.detail-cover { min-height: 0; flex: 1; overflow: hidden; border: 1px solid rgba(224,228,255,.25); border-radius: 8px 8px 10px 10px; background: #1c2340; box-shadow: 0 5px 15px rgba(0,0,0,.45); }
+.detail-cover>img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.detail-cover .label-art { min-height: 100%; }
+.detail-cartridge-bottom { height: 26px; display: grid; place-items: end center; padding-top: 7px; color: #aeb5cc; font: 7px Consolas,monospace; letter-spacing: 1.5px; }
+.detail-cartridge-bottom::after { content: ""; position: absolute; left: calc(50% - 22px); bottom: 5px; width: 44px; height: 4px; border-radius: 4px; background: #070a12; }
+.detail-art-caption { z-index: 1; color: #bac1dc; font: 9px Consolas,monospace; letter-spacing: 1.4px; text-transform: uppercase; }
+.detail-content { min-width: 0; max-height: min(850px, calc(100vh - 48px)); overflow-y: auto; padding: 38px clamp(24px, 4vw, 48px) 28px; scrollbar-color: #555d7d transparent; scrollbar-width: thin; }
+.detail-heading { display: flex; align-items: flex-start; gap: 16px; justify-content: space-between; }
+.detail-heading .eyebrow { color: var(--mint); }
+.detail-heading h2 { margin: 8px 0 0; font-size: clamp(23px, 2.8vw, 34px); font-weight: 670; line-height: 1.1; letter-spacing: -1px; }
+.detail-favorite { width: 39px; min-width: 39px; padding: 0; color: #fff0a6; font-size: 20px; }
+.detail-favorite[aria-pressed="true"] { border-color: rgba(255,240,166,.55); background: rgba(180,145,55,.16); }
+.detail-primary-actions { display: flex; align-items: center; gap: 9px; margin-top: 22px; }
+.detail-primary-actions #detail-launch { min-width: 190px; flex: 1; min-height: 46px; font-size: 14px; }
+.detail-primary-actions #detail-launch>span { font-size: 12px; }
+.detail-launch-option { max-width: 185px; min-height: 42px; padding: 0 27px 0 11px; border: 1px solid var(--line); border-radius: 10px; color: #dce0f0; background: #15192a; font-size: 10px; }
+.detail-primary-actions #detail-store-link { min-height: 42px; white-space: nowrap; }
+.detail-status { min-height: 18px; margin: 8px 0 0; color: var(--coral); font-size: 11px; }
+.detail-stats { display: grid; grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; margin: 9px 0 25px; }
+.detail-stat { min-width: 0; display: flex; flex-direction: column; gap: 7px; padding: 12px; border: 1px solid var(--line); border-radius: 12px; background: linear-gradient(145deg, rgba(39,46,71,.65), rgba(17,22,38,.68)); }
+.detail-stat>span { color: #8f99b8; font: 8px Consolas,monospace; letter-spacing: 1.1px; }
+.detail-stat>strong { overflow: hidden; color: #edf0ff; font-size: 12px; font-weight: 620; text-overflow: ellipsis; white-space: nowrap; }
+.achievement-panel { padding: 16px; border: 1px solid rgba(180,190,242,.16); border-radius: 15px; background: rgba(9,13,25,.5); }
+.achievement-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.achievement-heading h3 { margin: 0; font-size: 15px; font-weight: 650; }
+.achievement-heading p { margin: 5px 0 0; color: var(--muted); font-size: 10px; }
+.achievement-trophy { width: 31px; height: 31px; display: grid; place-items: center; border: 1px solid rgba(255,224,145,.34); border-radius: 10px; color: #ffe291; background: rgba(183,145,58,.13); font-size: 18px; }
+.achievement-progress { height: 5px; overflow: hidden; margin: 13px 0 14px; border-radius: 6px; background: rgba(195,202,228,.13); }
+.achievement-progress>span { width: 0; height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg,#a991ff,#8ef0d1); box-shadow: 0 0 12px rgba(142,240,209,.34); transition: width .55s cubic-bezier(.2,.8,.2,1); }
+.achievements-grid { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); gap: 8px; }
+.achievement-icon { aspect-ratio: 1; position: relative; overflow: hidden; padding: 0; border: 1px solid rgba(190,200,255,.19); border-radius: 10px; background: #1c2234; animation: achievement-enter .3s ease both; }
+.achievement-icon img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.achievement-placeholder { width: 100%; height: 100%; display: grid; place-items: center; color: #a4aed0; font-size: 22px; }
+.achievement-icon.locked img { filter: grayscale(1) brightness(.42); }
+.achievement-icon.unlocked { border-color: rgba(151,244,211,.36); box-shadow: 0 0 12px rgba(145,244,211,.11); }
+.achievement-icon:hover { z-index: 1; transform: scale(1.08); border-color: var(--mint); }
+.achievement-icon>span { position: absolute; right: 3px; bottom: 3px; width: 14px; height: 14px; display: grid; place-items: center; border: 1px solid rgba(255,255,255,.34); border-radius: 50%; color: #061812; background: var(--mint); font-size: 9px; font-weight: 800; }
+.achievement-message { color: #a6aec9; font-size: 11px; line-height: 1.5; }
+.achievement-panel #achievement-toggle, .achievement-panel #achievement-connect { min-height: 32px; margin-top: 12px; padding: 0 11px; font-size: 10px; }
+.about-panel { margin-top: 22px; }
+.detail-meta { margin: 8px 0; color: #b7bfd8; font-size: 11px; line-height: 1.6; }
+.detail-target { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; color: #99a3c1; background: rgba(8,12,23,.55); font: 9px Consolas,monospace; }
+.detail-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 18px; padding-top: 14px; border-top: 1px solid var(--line); }
+.detail-actions .quiet { min-height: 33px; padding: 0 10px; font-size: 10px; }
+.detail-actions .danger { border-color: rgba(255,155,134,.3); color: var(--coral); }
+@keyframes detail-enter { from { opacity: 0; transform: translateY(12px) scale(.985); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes achievement-enter { from { opacity: 0; transform: translateY(6px) scale(.94); } to { opacity: 1; transform: translateY(0) scale(1); } }
+@media (max-width: 860px) {
+  .detail-dialog { width: min(720px, calc(100vw - 32px)); overflow-y: auto; }
+  .detail-layout { max-height: none; grid-template-columns: 190px minmax(0,1fr); }
+  .detail-art-panel { padding: 54px 16px 20px; }
+  .detail-cartridge { width: min(155px,100%); }
+  .detail-content { max-height: none; padding: 28px 19px 22px; }
+  .achievements-grid { grid-template-columns: repeat(6,minmax(0,1fr)); }
+}
+@media (max-width: 600px) {
+  .detail-dialog { width: calc(100vw - 18px); max-height: calc(100vh - 18px); }
+  .detail-layout { display: block; max-height: none; }
+  .detail-art-panel { min-height: 0; flex-direction: row; justify-content: flex-start; gap: 14px; padding: 15px 58px 13px 17px; border-right: 0; border-bottom: 1px solid var(--line); }
+  .detail-art-panel::before, .detail-art-panel::after { width: 140px; height: 140px; right: 10px; left: auto; }
+  .detail-cartridge { width: 67px; flex: none; padding: 4px; border-radius: 8px; }
+  .detail-cartridge::before, .detail-cartridge-bottom { display: none; }
+  .detail-cartridge-top { height: 11px; font-size: 4px; letter-spacing: .6px; }
+  .detail-cartridge-bottom { height: 0; }
+  .detail-art-caption { font-size: 8px; }
+  .detail-content { max-height: calc(100vh - 120px); padding: 20px 16px; }
+  .detail-heading h2 { font-size: 23px; }
+  .detail-primary-actions { flex-wrap: wrap; margin-top: 15px; }
+  .detail-primary-actions #detail-launch { min-width: 130px; }
+  .detail-launch-option { max-width: unset; flex: 1; }
+  .detail-stats { gap: 6px; margin-bottom: 17px; }
+  .detail-stat { padding: 9px 7px; }
+  .detail-stat>span { font-size: 6px; letter-spacing: .6px; }
+  .detail-stat>strong { font-size: 10px; }
+  .achievement-panel { padding: 12px; }
+  .achievements-grid { grid-template-columns: repeat(5,minmax(0,1fr)); gap: 6px; }
+}
+
 @keyframes card-enter { from { opacity: 0; transform: translateY(9px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes dock-in { from { opacity: 0; transform: translate(-50%, 38px); } to { opacity: 1; transform: translate(-50%, 0); } }
 @keyframes cartridge-launch { 0% { transform: translateY(0) scale(1); opacity: 1; } 45% { transform: translateY(-18px) scale(1.04); opacity: 1; } 100% { transform: translateY(190px) scale(.4); opacity: 0; } }
