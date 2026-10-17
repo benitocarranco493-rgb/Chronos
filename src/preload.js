@@ -15,5 +15,6 @@ contextBridge.exposeInMainWorld('chronos', {
   onUpdateState: callback => ipcRenderer.on('update:state', (_event, payload) => callback(payload)),
   launch: target => ipcRenderer.invoke('game:launch', target),
   openStore: url => ipcRenderer.invoke('store:open', url),
+  openEpicBrowse: url => ipcRenderer.invoke('store:epic-browse', url),
   pickGame: () => ipcRenderer.invoke('game:pick')
 });

@@ -43,6 +43,10 @@ jobs:
             ForEach-Object { "$($_.Hash.ToLower())  $([System.IO.Path]::GetFileName($_.Path))" } |
             Set-Content release/SHA256SUMS.txt
 
+      - name: Verify Windows packages and checksums
+        shell: pwsh
+        run: ./scripts/verify-windows-artifacts.ps1
+
       - name: Upload Windows packages
         uses: actions/upload-artifact@v4
         with:

@@ -1,6 +1,13 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
-const { searchStores } = require('../src/providers/stores');
+const { searchStores, validateEpicBrowseUrl } = require('../src/providers/stores');
+
+test('Epic fallback URL accepts only official localized browse pages with a query', () => {
+  assert.equal(validateEpicBrowseUrl('https://store.epicgames.com/es-ES/browse/?q=Hades'), 'https://store.epicgames.com/es-ES/browse/?q=Hades');
+  assert.throws(() => validateEpicBrowseUrl('https://example.com/es-ES/browse/?q=Hades'), /Only Epic Games Store/);
+  assert.throws(() => validateEpicBrowseUrl('https://store.epicgames.com:444/es-ES/browse/?q=Hades'), /Only Epic Games Store/);
+  assert.throws(() => validateEpicBrowseUrl('https://store.epicgames.com/es-ES/browse/'), /Only Epic Games Store/);
+});
 
 test('store search normalizes regional Steam and Epic prices independently', async () => {
   const responses = [

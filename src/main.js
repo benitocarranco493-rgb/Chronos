@@ -7,7 +7,7 @@ const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
-const { searchStores } = require('./providers/stores');
+const { searchStores, validateEpicBrowseUrl } = require('./providers/stores');
 const { importSteamLibrary, searchGridArt } = require('./providers/online');
 const { autoUpdater } = require('electron-updater');
 
@@ -91,6 +91,35 @@ ipcMain.handle('game:launch', (_event, target) => launchGame(target));
 ipcMain.handle('store:open', (_event, url) => {
   if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return false;
   return shell.openExternal(url);
+});
+ipcMain.handle('store:epic-browse', async (_event, value) => {
+  const target = validateEpicBrowseUrl(value);
+  const isEpicUrl = candidate => {
+    try {
+      const url = new URL(candidate);
+      return url.protocol === 'https:' && (url.hostname === 'epicgames.com' || url.hostname.endsWith('.epicgames.com'));
+    } catch { return false; }
+  };
+  const browser = new BrowserWindow({
+    width: 1280, height: 850, minWidth: 800, minHeight: 600,
+    title: 'Epic Games Store · Chronos', backgroundColor: '#11130f',
+    webPreferences: { contextIsolation: true, nodeIntegration: false, sandbox: true }
+  });
+  browser.webContents.setWindowOpenHandler(({ url }) => {
+    if (isEpicUrl(url)) void browser.loadURL(url).catch(() => browser.close());
+    else if (/^https:\/\//i.test(url)) shell.openExternal(url);
+    return { action: 'deny' };
+  });
+  browser.webContents.on('will-redirect', (event, url) => {
+    if (!isEpicUrl(url)) event.preventDefault();
+  });
+  browser.webContents.on('will-navigate', (event, url) => {
+    if (isEpicUrl(url)) return;
+    event.preventDefault();
+    if (/^https:\/\//i.test(url)) shell.openExternal(url);
+  });
+  await browser.loadURL(target);
+  return true;
 });
 ipcMain.handle('update:check', async () => {
   if (app.isPackaged) {

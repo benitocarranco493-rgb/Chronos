@@ -1,6 +1,15 @@
 const STEAM_ENDPOINT = 'https://store.steampowered.com/api/storesearch/';
 const EPIC_ENDPOINT = 'https://store.epicgames.com/graphql';
 
+function validateEpicBrowseUrl(value) {
+  let url;
+  try { url = new URL(value); } catch { throw new Error('Invalid Epic search URL.'); }
+  if (url.origin !== 'https://store.epicgames.com' || url.username || url.password || url.hash || url.searchParams.size !== 1 || !/^\/[a-z]{2}-[A-Z]{2}\/browse\/?$/.test(url.pathname) || !url.searchParams.get('q') || url.searchParams.get('q').length > 100) {
+    throw new Error('Only Epic Games Store search pages can open inside Chronos.');
+  }
+  return url.toString();
+}
+
 async function requestJson(fetchImpl, url, options) {
   try {
     const response = await fetchImpl(url, options);
@@ -62,4 +71,4 @@ async function searchStores(query, { country = 'ES', locale = 'es-ES', fetchImpl
   return { results, checkedAt: Date.now(), region, providers: { steam: steamAvailable, epic: epicAvailable } };
 }
 
-module.exports = { searchStores, formatSteam, formatEpic };
+module.exports = { searchStores, formatSteam, formatEpic, validateEpicBrowseUrl };
