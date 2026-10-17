@@ -6,6 +6,8 @@ let selectedGameId = null;
 let favoritesOnly = false;
 let showHidden = false;
 let steamKeySaved = false;
+let epicConnected = false;
+let secureStorageAvailable = false;
 let achievementDetails = null;
 let showAllAchievements = false;
 const save = async () => {
@@ -49,7 +51,7 @@ function renderAchievements(details){achievementDetails=details;const items=deta
 }
 function go(page){document.querySelectorAll('.page').forEach(p=>p.classList.add('hidden'));$(`#${page}-page`).classList.remove('hidden');document.querySelectorAll('.nav-item').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('#crumb-page').textContent=page==='library'?'COLLECTION':page==='stores'?'STORE BROWSER':'SETTINGS'}
 async function mergeGames(discovered,{detected=false}={}){const merged=ChronosLibrary.mergeDiscoveredGames(games,discovered,{detected});games=merged.games;await save();render();return merged.added}
-async function scan(){const button=$('#refresh'),status=$('#scan-status');button.disabled=true;button.innerHTML=`${iconSvg('arrow-path')} <span>Scanning…</span>`;status.textContent='Checking each installed launcher and synced library…';try{const result=await window.chronos.scanGames();const discovered=Array.isArray(result)?result:(result.games||[]);const added=await mergeGames(discovered,{detected:true});const providers=result.providers||[];const summary=providers.map(provider=>`${provider.name}: ${provider.error?'unavailable':provider.count}`).join(' · ');status.textContent=`${summary} · ${added} added · ${discovered.length} found · Epic includes local installs and Heroic-synced titles; Steam account import is in Settings.`}catch(err){console.error(err);status.textContent='The launcher scan could not finish.'}finally{button.disabled=false;button.innerHTML=`${iconSvg('arrow-path')} <span>Scan</span>`}}
+async function scan(){const button=$('#refresh'),status=$('#scan-status');button.disabled=true;button.innerHTML=`${iconSvg('arrow-path')} <span>Scanning…</span>`;status.textContent='Checking installed launchers and local metadata…';try{const result=await window.chronos.scanGames();const discovered=Array.isArray(result)?result:(result.games||[]);const added=await mergeGames(discovered,{detected:true});const providers=result.providers||[];const summary=providers.map(provider=>`${provider.name}: ${provider.error?'unavailable':provider.count}`).join(' · ');status.textContent=`${summary} · ${added} added · ${discovered.length} found · Import the full Epic account library in Settings.`}catch(err){console.error(err);status.textContent='The launcher scan could not finish.'}finally{button.disabled=false;button.innerHTML=`${iconSvg('arrow-path')} <span>Scan</span>`}}
 document.querySelectorAll('.nav-item').forEach(b=>b.addEventListener('click',()=>go(b.dataset.page)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>go(b.dataset.goto)));
 $('#settings-shortcut').onclick=()=>go('settings');
@@ -92,6 +94,10 @@ $('#detail-favorite').onclick=async()=>{const game=games.find(item=>item.id===se
 $('#achievement-toggle').onclick=()=>{if(!achievementDetails)return;showAllAchievements=!showAllAchievements;renderAchievements(achievementDetails)};
 $('#achievement-connect').onclick=()=>{const gameId=selectedGameId;$('#detail-dialog').close();go('settings');(steamKeySaved?$('#steam-id'):$('#steam-key')).focus();if(gameId)selectedGameId=gameId};
 $('#steam-import').onclick=async()=>{const button=$('#steam-import'),id=$('#steam-id').value.trim();settings.steamId=id;button.disabled=true;$('#credential-status').textContent='Importing games from Steam…';try{const discovered=await window.chronos.importSteamLibrary(id);const added=await mergeGames(discovered);$('#credential-status').textContent=discovered.length?`Imported ${discovered.length} Steam games · ${added} added to your shelf.`:'Steam returned no games. Your game details may be private, or the profile may have no visible games. Check Steam privacy settings and try again.'}catch(error){console.error(error);$('#credential-status').textContent=error.message||'Steam library import failed.'}finally{button.disabled=false}};
+$('#epic-login').onclick=async()=>{try{const url=await window.chronos.epicLoginUrl();await window.chronos.openStore(url);$('#credential-status').textContent='Sign in on Epic’s website. Copy the authorization code Epic displays, return here, and paste it above.'}catch(error){$('#credential-status').textContent=error.message||'Could not open Epic sign-in.'}};
+$('#epic-connect').onclick=async()=>{const button=$('#epic-connect'),code=$('#epic-code').value.trim();if(!secureStorageAvailable){$('#credential-status').textContent='Secure OS storage is unavailable. Configure the system keyring before connecting Epic.';return}button.disabled=true;$('#credential-status').textContent='Connecting securely to Epic…';try{await window.chronos.connectEpic(code);epicConnected=true;$('#epic-code').value='';$('#credential-status').textContent='Epic account connected. Import your library when ready.'}catch(error){console.error(error);$('#credential-status').textContent=error.message||'Epic account connection failed.'}finally{button.disabled=false}};
+$('#epic-import').onclick=async()=>{const button=$('#epic-import');button.disabled=true;$('#credential-status').textContent='Loading your library directly from Epic…';try{const discovered=await window.chronos.importEpicLibrary();const added=await mergeGames(discovered);$('#credential-status').textContent=`Epic returned ${discovered.length} games · ${added} added to your shelf.`}catch(error){console.error(error);$('#credential-status').textContent=error.message||'Epic library import failed.'}finally{button.disabled=false}};
+$('#epic-disconnect').onclick=async()=>{if(await window.chronos.disconnectEpic()){epicConnected=false;$('#credential-status').textContent='Epic connection removed from this device. Imported games remain on your shelf.'}else $('#credential-status').textContent='Could not clear the Epic session from secure storage.'};
 $('#save-region').onclick=async()=>{settings.region=$('#settings-region').value;$('#store-region').value=settings.region;await save();$('#credential-status').textContent='Store region saved.'};
 $('#welcome-dialog').addEventListener('cancel',event=>event.preventDefault());
 async function finishWelcome(scanNow){settings.region=$('#welcome-region').value;settings.onboardingCompleted=true;$('#settings-region').value=settings.region;$('#store-region').value=settings.region;await save();$('#welcome-dialog').close();if(scanNow)await scan()}
@@ -125,10 +131,11 @@ async function initialize(){
     $('#settings-region').value=settings.region||'ES';$('#store-region').value=settings.region||'ES';$('#welcome-region').value=settings.region||'ES';
     localStorage.removeItem('chronos-games');
     if(database.credentialsMigrated){localStorage.removeItem('steam-key');localStorage.removeItem('sgdb-key')}
-    const credentialStatus=database.credentials;steamKeySaved=Boolean(credentialStatus.steam);
+    const credentialStatus=database.credentials;steamKeySaved=Boolean(credentialStatus.steam);epicConnected=Boolean(credentialStatus.epic);secureStorageAvailable=Boolean(credentialStatus.secureStorageAvailable);
     $('#steam-key').placeholder=credentialStatus.steam?'Key saved securely · enter to replace':'Optional key';
     $('#sgdb-key').placeholder=credentialStatus.steamgriddb?'Key saved securely · enter to replace':'Optional key';
-    if(!credentialStatus.secureStorageAvailable)$('#credential-status').textContent='No secure system keyring is available. Configure Secret Service or KWallet before saving API keys.';
+    if(!credentialStatus.secureStorageAvailable)$('#credential-status').textContent='No secure system keyring is available. Configure Secret Service or KWallet before saving API keys or connecting Epic.';
+    else if(epicConnected)$('#credential-status').textContent='Epic account connected. Import your library directly from Epic in Settings.';
     else if(!database.credentialsMigrated)$('#credential-status').textContent='Your previous key is still in the old local setting and could not be migrated. Set up a system keyring before saving a replacement.';
     render();if(!settings.onboardingCompleted)$('#welcome-dialog').showModal();else await scan();
   } catch(error) {

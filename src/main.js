@@ -9,6 +9,7 @@ const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = requ
 const { createGameLauncher } = require('./providers/launch');
 const { searchStores, validateEpicBrowseUrl } = require('./providers/stores');
 const { importSteamLibrary, getSteamGameDetails, searchGridArt } = require('./providers/online');
+const { epicLoginUrl, connectEpic, epicLibrary } = require('./providers/epic');
 const { autoUpdater } = require('electron-updater');
 
 const launchGame = createGameLauncher({
@@ -59,11 +60,26 @@ ipcMain.handle('data:save', (_event, database) => {
   return store.save(database);
 });
 ipcMain.handle('credentials:set', (_event, provider, value) => {
-  if (typeof value !== 'string' || value.length > 512) return false;
+  if (!['steam', 'steamgriddb'].includes(provider) || typeof value !== 'string' || value.length > 512) return false;
   return credentials.set(provider, value);
 });
 ipcMain.handle('credentials:status', () => credentials.status());
 ipcMain.handle('games:scan', () => scanInstalledGamesDetailed());
+ipcMain.handle('epic:login-url', () => epicLoginUrl());
+ipcMain.handle('epic:connect', async (_event, code) => {
+  const session = await connectEpic(code);
+  if (!await credentials.set('epic', JSON.stringify(session))) throw new Error('Chronos could not store the Epic session securely. Check the OS keyring.');
+  return true;
+});
+ipcMain.handle('epic:library', async () => {
+  const rawSession = await credentials.get('epic');
+  let session;
+  try { session = rawSession ? JSON.parse(rawSession) : null; } catch { session = null; }
+  return epicLibrary(session, async refreshed => {
+    if (!await credentials.set('epic', JSON.stringify(refreshed))) throw new Error('Chronos could not refresh the Epic session securely.');
+  });
+});
+ipcMain.handle('epic:disconnect', () => credentials.set('epic', ''));
 ipcMain.handle('store:search', (_event, query, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
   const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';

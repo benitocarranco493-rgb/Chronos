@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const KEY_NAMES = { steam: 'steam-key', steamgriddb: 'sgdb-key' };
+const KEY_NAMES = { steam: 'steam-key', steamgriddb: 'sgdb-key', epic: 'epic-session' };
 
 function createCredentialStore(userDataPath, safeStorage, platform) {
   const filePath = path.join(userDataPath, 'credentials.json');
@@ -26,7 +26,7 @@ function createCredentialStore(userDataPath, safeStorage, platform) {
     cache = value;
   }
   async function status() {
-    return { secureStorageAvailable: await available(), steam: Boolean(read().steam), steamgriddb: Boolean(read().steamgriddb) };
+    return { secureStorageAvailable: await available(), steam: Boolean(read().steam), steamgriddb: Boolean(read().steamgriddb), epic: Boolean(read().epic) };
   }
   async function set(provider, value) {
     if (!KEY_NAMES[provider] || typeof value !== 'string') return false;
