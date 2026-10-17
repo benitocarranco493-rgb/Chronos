@@ -101,10 +101,18 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
     const progress = unlockedByName.get(item.name || item.apiname);
     const unlocked = Number(progress?.achieved) === 1;
     const hidden = Number(item.hidden) === 1 && !unlocked;
+    const rawIcons = unlocked
+      ? [item.icon, item.icon_gray, item.icongray, progress?.icon, progress?.icon_gray, progress?.icongray]
+      : [item.icongray, item.icon_gray, item.icon, progress?.icongray, progress?.icon_gray, progress?.icon];
+    const icons = [...new Set(rawIcons.map(value => {
+      const url = String(value || '').trim();
+      return url.startsWith('//') ? `https:${url}` : url;
+    }).filter(url => /^https:\/\//i.test(url)))].slice(0, 3);
     return {
       name: hidden ? 'Secret achievement' : String(item.displayName || item.name || item.apiname || 'Achievement').slice(0, 120),
       description: hidden ? 'Unlock this achievement to reveal its details.' : String(item.description || '').slice(0, 400),
-      icon: String(unlocked ? (item.icon || item.icon_gray || '') : (item.icongray || item.icon_gray || item.icon || '')).slice(0, 2048),
+      icon: (icons[0] || '').slice(0, 2048),
+      iconFallbacks: icons.slice(1).map(url => url.slice(0, 2048)),
       unlocked,
       unlockTime: Number(progress?.unlocktime) || 0
     };
