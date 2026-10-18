@@ -6,11 +6,28 @@
   function mergeDiscoveredGames(currentGames, discoveredGames, { detected = false } = {}) {
     const games = currentGames.map(game => ({ ...game }));
     let added = 0;
+    const pendingDlcs = [];
+    const normalizeTitle = title => String(title || '').normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[^\p{L}\p{N}]+/gu, '').toLocaleLowerCase();
+    function attachDlc(dlc) {
+      const baseTitle = normalizeTitle(dlc.baseGameTitle);
+      if (!baseTitle) return false;
+      const parent = games.find(item => normalizeTitle(item.title) === baseTitle && !item.isDlc);
+      if (!parent) return false;
+      const child = { id: dlc.id, title: dlc.title, art: dlc.art || '', source: dlc.source || 'epic-account' };
+      parent.dlcs = [...(parent.dlcs || []).filter(item => item.id !== child.id), child];
+      const standaloneIndex = games.findIndex(item => item.id === child.id);
+      if (standaloneIndex !== -1) games.splice(standaloneIndex, 1);
+      return true;
+    }
 
     for (const discovered of discoveredGames) {
       const game = { ...discovered };
       if (detected && game.installed === undefined) game.installed = true;
       const source = game.source || game.platform.toLowerCase();
+      if (game.isDlc) {
+        if (!attachDlc(game)) pendingDlcs.push(game);
+        continue;
+      }
       const target = games.find(item => item.id === game.id)
         || games.find(item => !isManual(item) && item.title.trim().toLocaleLowerCase() === game.title.trim().toLocaleLowerCase());
 
@@ -38,6 +55,8 @@
       games.push(game);
       added++;
     }
+
+    for (const dlc of pendingDlcs) attachDlc(dlc);
 
     return { games, added };
   }

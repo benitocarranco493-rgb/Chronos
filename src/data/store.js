@@ -14,6 +14,7 @@ function cleanGame(game) {
     added: Number.isFinite(game.added) ? game.added : Date.now(),
     source: typeof game.source === 'string' ? game.source.slice(0, 40) : (typeof game.platform === 'string' ? game.platform.toLowerCase() : 'manual'),
     sources: Array.isArray(game.sources) ? [...new Set(game.sources.filter(source => typeof source === 'string').map(source => source.slice(0, 40)))].slice(0, 12) : [],
+    dlcs: Array.isArray(game.dlcs) ? game.dlcs.filter(dlc => dlc && typeof dlc.id === 'string' && typeof dlc.title === 'string' && dlc.title.trim()).slice(0, 100).map(dlc => ({ id: dlc.id.slice(0, 160), title: dlc.title.trim().slice(0, 240), art: typeof dlc.art === 'string' ? dlc.art.slice(0, 2048) : '', source: typeof dlc.source === 'string' ? dlc.source.slice(0, 40) : 'epic-account' })) : [],
     launchOptions: Array.isArray(game.launchOptions) ? game.launchOptions.filter(option => option && typeof option.launch === 'string').slice(0, 12).map(option => ({ platform: String(option.platform || '').slice(0, 40), source: String(option.source || '').slice(0, 40), launch: option.launch.slice(0, 2048) })) : [],
     favorite: game.favorite === true,
     lastPlayed: Number.isFinite(game.lastPlayed) ? game.lastPlayed : 0,

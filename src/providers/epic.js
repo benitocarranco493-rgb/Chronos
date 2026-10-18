@@ -133,8 +133,13 @@ async function epicLibrary(session, persistSession = async () => {}) {
     if (platforms.length && !platforms.some(platform => ['Windows', 'Win32'].includes(platform))) continue;
     const catalog = catalogInfo.get(`${namespace}:${catalogItemId}`) || {};
     const embeddedCatalog = record.catalogItem && typeof record.catalogItem === 'object' ? record.catalogItem : {};
-    if (catalog.mainGameItem || embeddedCatalog.mainGameItem || record.isDLC || record.is_dlc) continue;
     const metadata = record.metadata && typeof record.metadata === 'object' ? record.metadata : {};
+    const categories = [embeddedCatalog.categories, catalog.categories, metadata.categories, record.categories]
+      .flatMap(items => Array.isArray(items) ? items : [])
+      .map(item => String(item?.path || '').toLowerCase());
+    const hasGameCategory = categories.some(category => category === 'games' || category.startsWith('games/'));
+    const baseGame = catalog.mainGameItem || embeddedCatalog.mainGameItem || metadata.mainGameItem || record.mainGameItem || null;
+    const isDlc = Boolean(baseGame || record.isDLC || record.is_dlc) && !hasGameCategory;
     const titleCandidates = [embeddedCatalog.title, embeddedCatalog.displayName, catalog.title, catalog.displayName, metadata.title, metadata.displayName, record.title, record.displayName]
       .map(value => String(value || '').trim())
       .filter(value => value && value.toLowerCase() !== appName.toLowerCase() && value.toLowerCase() !== catalogItemId.toLowerCase());
@@ -145,7 +150,8 @@ async function epicLibrary(session, persistSession = async () => {}) {
       .find(url => typeof url === 'string' && /^https:\/\//i.test(url)) || '';
     games.push({
       id: `epic-account-${appName}`, title: String(title), platform: 'Epic', source: 'epic-account', sources: ['epic'], art: image,
-      installed: false, launch: `com.epicgames.launcher://apps/${[namespace, catalogItemId, appName].map(encodeURIComponent).join('%3A')}?action=launch&silent=true`
+      installed: false, isDlc, baseGameTitle: isDlc ? String(baseGame?.title || '') : '',
+      launch: `com.epicgames.launcher://apps/${[namespace, catalogItemId, appName].map(encodeURIComponent).join('%3A')}?action=launch&silent=true`
     });
   }
   return games;

@@ -301,6 +301,19 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .achievement-icon>span .icon { width: 10px; height: 10px; stroke-width: 2.5; }
 .achievement-message { color: #a6aec9; font-size: 11px; line-height: 1.5; }
 .achievement-panel #achievement-toggle, .achievement-panel #achievement-connect { min-height: 32px; margin-top: 12px; padding: 0 11px; font-size: 10px; }
+.owned-dlc-panel { margin-top: 18px; padding: 15px; border: 1px solid rgba(180,190,242,.16); border-radius: 15px; background: linear-gradient(135deg, rgba(46,53,78,.46), rgba(9,13,25,.55)); }
+.owned-dlc-heading { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 11px; }
+.owned-dlc-heading h3 { margin: 0; font-size: 14px; }
+.owned-dlc-heading p { margin: 4px 0 0; color: var(--muted); font-size: 10px; }
+.owned-dlc-count { color: var(--mint); font: 10px Consolas,monospace; }
+.owned-dlc-list { display: grid; gap: 7px; }
+.owned-dlc-item { min-width: 0; display: flex; align-items: center; gap: 10px; padding: 7px; border: 1px solid rgba(180,190,242,.1); border-radius: 10px; background: rgba(8,12,23,.46); }
+.owned-dlc-art { width: 42px; height: 52px; flex: none; display: grid; place-items: center; overflow: hidden; border-radius: 6px; color: var(--mint); background: #1c2340; font-weight: 700; }
+.owned-dlc-art img { width: 100%; height: 100%; object-fit: cover; }
+.owned-dlc-art span { padding: 4px; font-size: 11px; text-align: center; }
+.owned-dlc-item>div:last-child { min-width: 0; display: grid; gap: 5px; }
+.owned-dlc-item strong { overflow: hidden; color: #e9ecf8; font-size: 11px; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.owned-dlc-item small { color: #8f99b8; font: 8px Consolas,monospace; letter-spacing: .8px; text-transform: uppercase; }
 .about-panel { margin-top: 22px; }
 .detail-meta { margin: 8px 0; color: #b7bfd8; font-size: 11px; line-height: 1.6; }
 .detail-target { margin: 10px 0; padding: 10px 12px; border: 1px solid var(--line); border-radius: 9px; color: #99a3c1; background: rgba(8,12,23,.55); font: 9px Consolas,monospace; }
