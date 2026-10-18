@@ -92,17 +92,17 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .shelf-title h2 span { margin-left: 5px; color: #b5b1e0; font: 11px Consolas, monospace; vertical-align: 3px; }
 .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .settings-card select, .welcome-region select, .store-search select { min-height: 39px; padding: 0 36px 0 14px; appearance: none; border: 1px solid rgba(190,160,255,.2); border-radius: 12px; color: #e6dcff; background: #100d19; font-size: 11px; }
-.filter-dropdown { width: 156px; position: relative; z-index: 1; }
+.filter-dropdown { width: 138px; position: relative; z-index: 1; }
 .filter-dropdown.open { z-index: 8; }
 .filter-native { display: none; }
-.filter-trigger { width: 100%; min-height: 52px; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 7px 9px 7px 14px; border: 1px solid rgba(190,160,255,.22); border-radius: 14px 14px 14px 5px; color: #eee7ff; background: linear-gradient(145deg, rgba(30,22,48,.98), rgba(13,11,22,.99)); box-shadow: inset 0 1px rgba(255,255,255,.055), 0 6px 16px rgba(0,0,0,.24); text-align: left; cursor: pointer; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease; }
+.filter-trigger { width: 100%; min-height: 46px; display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 6px 7px 6px 12px; border: 1px solid rgba(190,160,255,.22); border-radius: 13px 13px 13px 5px; color: #eee7ff; background: linear-gradient(145deg, rgba(30,22,48,.98), rgba(13,11,22,.99)); box-shadow: inset 0 1px rgba(255,255,255,.055), 0 5px 13px rgba(0,0,0,.22); text-align: left; cursor: pointer; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease; }
 .filter-trigger:hover { transform: translateY(-2px); border-color: rgba(190,160,255,.58); box-shadow: inset 0 1px rgba(255,255,255,.08),0 9px 22px rgba(0,0,0,.32),0 0 18px rgba(153,124,230,.12); }
 .filter-trigger:focus-visible { outline: 2px solid #c4a3ff; outline-offset: 3px; }
 .filter-dropdown.open .filter-trigger { border-color: rgba(190,160,255,.72); background: linear-gradient(145deg,#211535,#110d1a); box-shadow: inset 0 1px rgba(255,255,255,.08),0 0 0 3px rgba(174,130,255,.1),0 9px 24px rgba(0,0,0,.35); }
 .filter-trigger-copy { min-width: 0; display: grid; gap: 4px; }
 .filter-trigger-copy small { color: #9b85c5; font: 700 7px Consolas,monospace; letter-spacing: 1.3px; }
 .filter-trigger-copy strong { overflow: hidden; color: #f0eaff; font-size: 11px; font-weight: 650; text-overflow: ellipsis; white-space: nowrap; }
-.filter-chevron { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border: 1px solid rgba(190,160,255,.2); border-radius: 10px 10px 10px 4px; color: #c4a3ff; background: rgba(123,83,180,.14); transition: transform .2s ease,background .2s ease; }
+.filter-chevron { width: 25px; height: 25px; flex: none; display: grid; place-items: center; border: 1px solid rgba(190,160,255,.2); border-radius: 9px 9px 9px 4px; color: #c4a3ff; background: rgba(123,83,180,.14); transition: transform .2s ease,background .2s ease; }
 .filter-chevron .icon { width: 14px; height: 14px; }
 .filter-dropdown.open .filter-chevron { transform: rotate(180deg); background: rgba(123,83,180,.28); }
 .filter-menu { width: max(100%, 180px); max-height: 290px; position: absolute; top: calc(100% + 8px); left: 0; display: grid; gap: 3px; overflow-y: auto; padding: 7px; border: 1px solid rgba(190,160,255,.3); border-radius: 14px 14px 14px 5px; background: linear-gradient(145deg,rgba(27,20,42,.98),rgba(10,9,17,.99)); box-shadow: 0 18px 42px rgba(0,0,0,.6),0 0 25px rgba(120,79,188,.12); backdrop-filter: blur(18px); scrollbar-color: #64478d transparent; scrollbar-width: thin; }
@@ -112,8 +112,11 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .filter-option.selected { color: #e5d5ff; background: linear-gradient(100deg,rgba(131,89,192,.25),rgba(71,46,110,.12)); }
 .filter-option .icon { width: 14px; height: 14px; color: #c4a3ff; }
 .controls .filter-dropdown { max-width: 190px; }
-.controls .quiet { min-height: 37px; padding: 0 11px; font-size: 11px; }
-#favorites-filter[aria-pressed="true"], #hidden-filter[aria-pressed="true"] { border-color: rgba(174, 130, 255, .6); color: var(--mint); background: rgba(83, 52, 130, .25); }
+.controls .quiet { min-height: 42px; padding: 0 12px; border-color: rgba(190,160,255,.2); border-radius: 13px 13px 5px 13px; color: #c9bfdc; background: linear-gradient(145deg,rgba(25,20,38,.96),rgba(12,11,19,.98)); box-shadow: inset 0 1px rgba(255,255,255,.04),0 5px 13px rgba(0,0,0,.2); font-size: 10px; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease,color .18s ease; }
+.controls .quiet:hover { transform: translateY(-2px); border-color: rgba(190,160,255,.52); color: #f3edff; background: linear-gradient(145deg,#20152f,#120e1c); box-shadow: 0 8px 18px rgba(0,0,0,.28),0 0 15px rgba(153,124,230,.1); }
+.controls .quiet .icon { width: 14px; height: 14px; color: #b89cff; }
+#favorites-filter[aria-pressed="true"], #hidden-filter[aria-pressed="true"] { border-color: rgba(190,160,255,.62); color: #eee4ff; background: linear-gradient(145deg,rgba(102,67,153,.38),rgba(44,30,68,.58)); box-shadow: inset 0 1px rgba(255,255,255,.08),0 0 17px rgba(153,124,230,.14); }
+#favorites-filter[aria-pressed="true"] .icon, #hidden-filter[aria-pressed="true"] .icon { color: #d4baff; }
 .scan-status { min-height: 18px; margin: 0 0 8px; color: #aeb6cf; font: 10px Consolas, monospace; letter-spacing: .1px; }
 .header-actions button:disabled { opacity: .58; cursor: wait; }
 @keyframes filter-menu-in { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
@@ -388,11 +391,11 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .header-actions { margin-left: auto; }
   .controls { gap: 6px; }
   .controls .filter-dropdown { min-width: 108px; }
-  .filter-trigger { min-height: 46px; padding: 6px 7px 6px 10px; }
+  .filter-trigger { min-height: 42px; padding: 5px 6px 5px 9px; }
   .filter-trigger-copy small { font-size: 6px; }
   .filter-trigger-copy strong { font-size: 10px; }
-  .filter-chevron { width: 24px; height: 24px; }
-  .controls .quiet { min-height: 34px; padding-inline: 8px; font-size: 10px; }
+  .filter-chevron { width: 22px; height: 22px; }
+  .controls .quiet { min-height: 40px; padding-inline: 9px; font-size: 10px; }
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 19px 15px; }
   .cartridge { border-radius: 13px 13px 17px 17px; }
   .store-search { flex-wrap: wrap; }
