@@ -203,7 +203,7 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 .store-note strong { color: #e4e8f8; font-size: 12px; }
 .store-note p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
 .store-title { padding-bottom: 23px; }
-.store-search-panel { max-width: 1040px; margin-bottom: 31px; padding: 21px 23px 15px; border: 1px solid rgba(184,148,226,.2); border-radius: 19px; background: radial-gradient(ellipse at 0 0,rgba(118,70,177,.2),transparent 57%),linear-gradient(125deg,rgba(25,18,37,.96),rgba(12,11,19,.94)); box-shadow: 0 18px 42px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035); }
+.store-search-panel { max-width: 1040px; margin-bottom: 31px; padding: 0; border: 0; border-radius: 0; background: none; box-shadow: none; }
 .store-search-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
 .store-panel-kicker { color: #bda2dc; font: 700 8px "Orbitron",sans-serif; letter-spacing: 1.3px; }
 .store-search-heading h2 { margin: 5px 0 0; color: #f2eaff; font: 650 17px "Red Hat Display",sans-serif; letter-spacing: -.2px; }
@@ -534,7 +534,7 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .browse-store-card>img { height: 88px; }
   .store-discover-status { text-align: left; }
   .store-title { padding-top: 22px; }
-  .store-search-panel { padding: 17px 14px 13px; border-radius: 15px; }
+  .store-search-panel { padding: 0; border-radius: 0; }
   .store-search-heading { align-items: flex-start; flex-direction: column; gap: 11px; }
   .store-search { display: grid; grid-template-columns: minmax(0,1fr); gap: 11px; }
   .store-region-field select { min-height: 36px; }
