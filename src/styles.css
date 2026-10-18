@@ -127,16 +127,16 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 @keyframes filter-menu-in { from { opacity: 0; transform: translateY(-5px) scale(.98); } to { opacity: 1; transform: translateY(0) scale(1); } }
 
 .game-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); align-items: start; gap: 42px clamp(18px, 4vw, 56px); padding: 5px 4px 95px; }
-.game-card { min-width: 0; position: relative; z-index: 0; cursor: pointer; animation: card-enter .34s ease both; }
+.game-card { min-width: 0; position: relative; z-index: 0; cursor: pointer; }
 .game-card:hover, .game-card:focus-visible { z-index: 4; }
 .cartridge {
-  aspect-ratio: .73; position: relative; overflow: hidden; padding: 9px 10px 14px; transform-origin: center 58%; transform-style: preserve-3d; backface-visibility: hidden; will-change: transform;
+  aspect-ratio: .73; position: relative; overflow: hidden; padding: 9px 10px 14px; transform-origin: center 58%; transform-style: preserve-3d; backface-visibility: hidden;
   border: 1px solid rgba(197, 203, 240, .31); border-radius: 16px 16px 20px 20px;
   background: linear-gradient(112deg, #4c516a 0%, #24293c 6%, #171b2b 18%, #101422 84%, #34394e 96%, #555b71 100%);
   box-shadow: 0 13px 22px rgba(2, 4, 12, .5), inset 0 1px rgba(255,255,255,.19), inset 0 -5px rgba(0,0,0,.38);
   transition: transform .16s cubic-bezier(.2,.8,.2,1), box-shadow .2s ease, border-color .2s ease;
 }
-.game-card:hover .cartridge, .game-card:focus-visible .cartridge { transform: perspective(850px) translateY(-16px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.085); border-color: rgba(207, 215, 255, .96); box-shadow: 0 36px 49px rgba(2, 4, 12, .7), 0 0 42px rgba(153, 124, 230, .34), inset 0 1px rgba(255,255,255,.34); }
+.game-card:hover .cartridge, .game-card:focus-visible .cartridge { will-change: transform; transform: perspective(850px) translateY(-16px) rotateX(var(--tilt-x, 0deg)) rotateY(var(--tilt-y, 0deg)) scale(1.085); border-color: rgba(207, 215, 255, .96); box-shadow: 0 36px 49px rgba(2, 4, 12, .7), 0 0 42px rgba(153, 124, 230, .34), inset 0 1px rgba(255,255,255,.34); }
 .cartridge::before { content: ""; position: absolute; top: 4px; left: 30%; right: 30%; height: 5px; border-radius: 0 0 5px 5px; background: linear-gradient(90deg, #080b14, #596079 50%, #090c15); box-shadow: 0 1px 1px rgba(255,255,255,.16); }
 .cartridge::after { content: ""; position: absolute; left: 50%; bottom: 5px; width: 35px; height: 4px; border-radius: 5px; background: #090b13; box-shadow: 0 1px rgba(255,255,255,.17); transform: translateX(-50%); }
 .cartridge-top { height: 23px; display: flex; align-items: center; justify-content: center; position: relative; }
