@@ -32,10 +32,10 @@ body {
   margin: 0;
   color: var(--text);
   background:
-    radial-gradient(ellipse 70% 46% at 8% 1%, rgba(86, 55, 190, .44), transparent 72%),
-    radial-gradient(ellipse 48% 40% at 94% 14%, rgba(111, 67, 190, .25), transparent 70%),
-    radial-gradient(ellipse 50% 38% at 54% 82%, rgba(114, 52, 170, .17), transparent 70%),
-    #090d18;
+    radial-gradient(ellipse 86% 65% at 46% -5%, rgba(104, 54, 202, .58), transparent 72%),
+    radial-gradient(ellipse 60% 58% at 100% 26%, rgba(130, 67, 205, .34), transparent 70%),
+    radial-gradient(ellipse 72% 62% at 0% 76%, rgba(82, 43, 165, .31), transparent 72%),
+    #08070e;
   background-attachment: fixed;
   font-size: 14px;
 }
@@ -74,12 +74,10 @@ button:focus-visible, input:focus-visible, select:focus-visible, .game-card:focu
 .search input { width: 100%; min-width: 0; border: 0; outline: 0; color: var(--text); background: transparent; font-size: 13px; }
 .search input::placeholder { color: #838ba7; }
 .global-search { width: min(34vw, 400px); margin: 0 auto; }
-.top-nav { display: flex; align-items: center; gap: 5px; padding: 4px; border: 1px solid var(--line); border-radius: 15px; background: rgba(6, 9, 20, .42); }
-.nav-item { min-height: 34px; display: inline-flex; align-items: center; gap: 8px; padding: 0 13px; border: 0; border-radius: 11px; color: #b4bbd4; background: transparent; font-family: "Chakra Petch", sans-serif; font-size: 12px; font-weight: 600; transition: color .18s, background .18s, box-shadow .18s; }
-.nav-item>.icon { width: 16px; height: 16px; color: var(--violet); }
-.nav-item b { color: #c7a8ff; font: 600 10px "Red Hat Display", sans-serif; }
-.nav-item:hover { color: white; }
-.nav-item.active { color: white; background: linear-gradient(135deg, rgba(142, 111, 230, .42), rgba(121, 79, 188, .32)); box-shadow: inset 0 0 0 1px rgba(219, 221, 255, .2), 0 3px 12px rgba(3, 5, 13, .22); }
+.top-nav { display: flex; align-items: center; gap: 3px; padding: 3px; border: 1px solid rgba(211,196,240,.19); border-radius: 15px; background: rgba(8,7,14,.64); box-shadow: inset 0 1px rgba(255,255,255,.035),0 5px 15px rgba(0,0,0,.2); }
+.nav-item { min-width: 88px; min-height: 34px; display: inline-flex; align-items: center; justify-content: center; padding: 0 15px; border: 1px solid transparent; border-radius: 12px; color: #bcb4ca; background: transparent; font-family: "Chakra Petch", sans-serif; font-size: 11px; font-weight: 700; letter-spacing: .9px; text-transform: uppercase; transition: color .18s, background .18s, box-shadow .18s, border-color .18s; }
+.nav-item:hover { color: #fff; background: rgba(190,160,255,.08); }
+.nav-item.active { border-color: rgba(238,230,255,.38); color: #fff; background: linear-gradient(180deg,rgba(242,235,255,.24),rgba(172,145,213,.14)); box-shadow: inset 0 1px rgba(255,255,255,.18),0 2px 8px rgba(0,0,0,.35),0 0 14px rgba(151,111,214,.14); }
 .header-actions { display: flex; align-items: center; gap: 8px; }
 .quiet, .add-button { min-height: 36px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 0 14px; border: 1px solid var(--line-strong); border-radius: 11px; color: #d5d9eb; background: rgba(20, 25, 43, .68); font-family: "Chakra Petch", sans-serif; font-size: 12px; font-weight: 600; transition: transform .16s, background .16s, border-color .16s; }
 .quiet:hover { border-color: rgba(184, 156, 255, .62); color: white; background: rgba(78, 68, 120, .35); }
