@@ -21,9 +21,9 @@
           .filter((option, index, list) => list.findIndex(candidate => candidate.launch === option.launch) === index);
         if (!target.launch && game.launch) target.launch = game.launch;
         const epicId = String(target.id || '').replace(/^epic(?:-account)?-/, '');
-        const targetTitleIsEpicPlaceholder = target.title === epicId || target.title === `Epic game ${epicId}`;
-        const discoveredTitleIsUseful = game.title && !/^Epic game\s/i.test(game.title) && game.title !== game.id?.replace(/^epic-account-/, '');
-        if (source === 'epic-account' && discoveredTitleIsUseful && (targetTitleIsEpicPlaceholder || !target.title)) target.title = game.title;
+        const targetTitleIsEpicPlaceholder = target.title === epicId || target.title === `Epic game ${epicId}` || target.title === 'Epic game (name unavailable)';
+        const discoveredTitleIsUseful = game.title && !/^Epic game\s*\(/i.test(game.title) && game.title !== game.id?.replace(/^epic-account-/, '');
+        if (source === 'epic-account' && (targetTitleIsEpicPlaceholder || !target.title)) target.title = discoveredTitleIsUseful ? game.title : 'Epic game (name unavailable)';
         if (game.art && !target.art) target.art = game.art;
         if (game.playtimeKnown) {
           target.playtimeMinutes = Number.isFinite(game.playtimeMinutes) ? game.playtimeMinutes : 0;

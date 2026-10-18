@@ -82,6 +82,24 @@ async function epicLibrary(session, persistSession = async () => {}) {
   } while (true);
 
   const catalogInfo = new Map();
+  async function fetchCatalogItems(namespace, itemIds) {
+    const url = new URL(`${CATALOG}/${encodeURIComponent(namespace)}/bulk/items`);
+    url.searchParams.set('id', itemIds.join(','));
+    url.searchParams.set('includeDLCDetails', 'true');
+    url.searchParams.set('includeMainGameDetails', 'true');
+    url.searchParams.set('country', 'ES');
+    url.searchParams.set('locale', 'es-ES');
+    const payload = await epicRequest(url, { headers: { Authorization: `Bearer ${activeSession.access_token}`, 'User-Agent': USER_AGENT } });
+    const nested = payload.elements || payload.items;
+    const container = Array.isArray(payload) ? payload : nested && typeof nested === 'object' ? nested : payload;
+    const pairs = Array.isArray(container)
+      ? container.map(info => [String(info?.id || info?.catalogItemId || info?.catalog_item_id || ''), info])
+      : Object.entries(container || {}).map(([key, info]) => [String(info?.id || info?.catalogItemId || info?.catalog_item_id || key), info]);
+    for (const [id, info] of pairs) {
+      if (!id || !info || typeof info !== 'object') continue;
+      catalogInfo.set(`${namespace}:${id}`, info.catalogItem && typeof info.catalogItem === 'object' ? info.catalogItem : info);
+    }
+  }
   const byNamespace = new Map();
   for (const record of records) {
     const namespace = String(record?.namespace || '');
@@ -92,26 +110,13 @@ async function epicLibrary(session, persistSession = async () => {}) {
   }
   await Promise.all([...byNamespace].map(async ([namespace, itemIds]) => {
     for (const batch of [...itemIds].reduce((groups, id, index) => { if (index % 40 === 0) groups.push([]); groups.at(-1).push(id); return groups; }, [])) {
-      const url = new URL(`${CATALOG}/${encodeURIComponent(namespace)}/bulk/items`);
-      url.searchParams.set('id', batch.join(','));
-      url.searchParams.set('includeDLCDetails', 'true');
-      url.searchParams.set('includeMainGameDetails', 'true');
-      url.searchParams.set('country', 'ES');
-      url.searchParams.set('locale', 'es-ES');
-      try {
-        const items = await epicRequest(url, { headers: { Authorization: `Bearer ${activeSession.access_token}`, 'User-Agent': USER_AGENT } });
-        const entries = Array.isArray(items) ? items : Array.isArray(items.elements) ? items.elements : Array.isArray(items.items) ? items.items : null;
-        if (entries) {
-          for (const info of entries) {
-            const id = String(info?.id || info?.catalogItemId || info?.catalog_item_id || '');
-            if (id) catalogInfo.set(`${namespace}:${id}`, info);
-          }
-        } else {
-          for (const [id, info] of Object.entries(items)) {
-            if (info && typeof info === 'object') catalogInfo.set(`${namespace}:${id}`, info);
-          }
-        }
-      } catch { /* Some entitlements have no catalog entry (for example, delisted games). */ }
+      try { await fetchCatalogItems(namespace, batch); }
+      catch { /* Retry missing items individually below; some entries make bulk requests fail. */ }
+      const missing = batch.filter(id => !catalogInfo.has(`${namespace}:${id}`));
+      for (const id of missing) {
+        try { await fetchCatalogItems(namespace, [id]); }
+        catch { /* Some entitlements have no catalog entry (for example, delisted games). */ }
+      }
     }
   }));
 
@@ -133,7 +138,7 @@ async function epicLibrary(session, persistSession = async () => {}) {
     const titleCandidates = [embeddedCatalog.title, embeddedCatalog.displayName, catalog.title, catalog.displayName, metadata.title, metadata.displayName, record.title, record.displayName]
       .map(value => String(value || '').trim())
       .filter(value => value && value.toLowerCase() !== appName.toLowerCase() && value.toLowerCase() !== catalogItemId.toLowerCase());
-    const title = titleCandidates[0] || `Epic game ${appName}`;
+    const title = titleCandidates[0] || 'Epic game (name unavailable)';
     const keyImages = [embeddedCatalog.keyImages, catalog.keyImages, metadata.keyImages, record.keyImages].flatMap(images => Array.isArray(images) ? images : []);
     const imageTypes = ['DieselGameBoxTall', 'DieselGameBox', 'OfferImageTall', 'OfferImageWide', 'Thumbnail'];
     const image = [...imageTypes.map(type => keyImages.find(item => item?.type === type)?.url), ...keyImages.map(item => item?.url)]
