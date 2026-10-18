@@ -15,6 +15,17 @@ Build artifacts on the matching host with `npm run dist:win` (Windows NSIS insta
 
 Run the project checks with `npm test` (31 tests at the current revision).
 
+## Install on Windows
+
+1. Open the [latest Chronos release](https://github.com/benitocarranco493-rgb/Chronos/releases/latest) and download `Chronos-<version>-x64-Setup.exe` to install the app, or `Chronos-<version>-x64-Portable.exe` to run it without installing.
+2. For the installer, open the downloaded file and follow the setup prompts. You can choose the installation folder. Start Chronos from the Start menu or its desktop shortcut when setup finishes.
+3. For the portable version, open the downloaded EXE directly. Keep it in a folder you can find again; you can create a shortcut to it if you like.
+4. On first launch, choose your store region and optionally scan your PC for installed games. Steam and SteamGridDB API keys are optional and can be added later in **Settings**.
+
+Chronos keeps your library and settings in your Windows user data folder, separate from the program files, so uninstalling the app does not remove them. To update, download and run the newest Setup installer; your existing library and settings are retained. The portable build can be replaced with the newer portable EXE. Windows may show a SmartScreen warning because the release is not code-signed; check that the downloaded file is from the official Chronos GitHub release.
+
+`SHA256SUMS.txt` is published with each release so you can verify the downloaded packages.
+
 The first run checks common Steam locations and additional Steam libraries, Epic Games Launcher manifests, Heroic's local GOG/Amazon data, Lutris' library when available, and installed Flatpak applications on Linux. Chronos can connect directly to an Epic account and import owned games, including titles not installed on this PC; Epic authentication sessions are encrypted through OS secure storage. This uses Epic Store endpoints that are not documented as a public third-party library API and may need maintenance if Epic changes them. The official Epic launcher is not needed to read the account library, though some games may still need it or other services to launch. Steam account import is available separately: use Import Steam library from the shelf, save a Steam Web API key in Settings, and provide a public Steam profile URL, vanity name, or SteamID64. Steam only returns the owned games list when game details are visible to the API; if it returns no games, check the profile privacy setting. Steam artwork tries alternate store images before showing the local title label. SteamGridDB cover search uses its documented boolean filters and reports API authorization errors. Flatpak metadata does not consistently identify games, so some non-game apps may be listed. Add games yourself with a title, optional cover image, and optional launch target. The library is stored as a versioned JSON database in Electron's per-user data directory. Existing browser-local collections are migrated on first launch. API keys are encrypted through Electron's OS-backed safe storage when the system keyring is available; Linux systems without a Secret Service/KWallet keyring cannot save keys securely.
 
 On first launch Chronos asks for a store region and offers to scan local launchers. Online API keys remain optional. Uninstallers are configured to preserve Chronos user data.
