@@ -100,7 +100,9 @@ function heroicGames(roots = heroicRoots()) {
     for (const appName of installedNames) {
       if (games.some(game => game.id === `heroic-${appName}`)) continue;
       const info = installed[appName];
-      if (info && typeof info === 'object') addGame(appName, 'legendary', info.title || appName, '', true);
+      const metadata = jsonFile(path.join(legendary, 'metadata', `${appName}.json`));
+      const details = metadata?.metadata && typeof metadata.metadata === 'object' ? metadata.metadata : metadata;
+      if (info && typeof info === 'object') addGame(appName, 'legendary', details?.title || details?.displayName || info.title || appName, details?.keyImages?.find(image => image.type === 'DieselGameBoxTall')?.url || '', true);
     }
 
     const gogInstalled = jsonFile(path.join(base, 'gog_store', 'installed.json'));
