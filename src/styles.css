@@ -211,6 +211,31 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 .settings-card input:focus, .store-search input:focus, #game-form input:focus { border-color: rgba(174,130,255,.55); box-shadow: 0 0 0 3px rgba(174,130,255,.07); }
 .settings-card select, .welcome-region select { min-height: 37px; }
 .privacy-note { padding: 8px; color: var(--faint); font-size: 10px; }
+.settings-title { padding-bottom: 27px; }
+.settings-groups { width: min(100%, 1020px); display: grid; gap: 31px; }
+.settings-group { min-width: 0; }
+.settings-group-heading { display: flex; align-items: center; gap: 12px; margin: 0 0 12px 2px; }
+.settings-group-icon { width: 36px; height: 36px; flex: none; display: grid; place-items: center; border: 1px solid rgba(183,145,242,.2); border-radius: 12px; color: #d2b7f5; background: linear-gradient(145deg,rgba(117,77,163,.28),rgba(39,27,58,.46)); }
+.settings-group-icon .icon { width: 17px; height: 17px; }
+.settings-group-icon.steam { color: #b9c8f0; }
+.settings-group-icon.epic { color: #f0eaff; }
+.settings-group-heading h2 { margin: 0 0 3px; color: #f1eaff; font: 700 13px "Orbitron","Red Hat Display",sans-serif; letter-spacing: .5px; }
+.settings-group-heading p { margin: 0; color: #9891a9; font-size: 11px; }
+.settings-card { min-width: 0; display: grid; grid-template-columns: minmax(200px,.85fr) minmax(0,1.15fr); align-items: center; gap: 18px; margin: 0 0 8px; padding: 16px 18px; border-color: rgba(184,157,220,.13); border-radius: 14px; background: linear-gradient(110deg,rgba(25,19,37,.84),rgba(13,12,20,.78)); box-shadow: 0 7px 22px rgba(0,0,0,.12),inset 0 1px rgba(255,255,255,.025); transition: border-color .18s,background .18s,transform .18s; }
+.settings-card:hover { transform: translateY(-1px); border-color: rgba(177,132,231,.26); background: linear-gradient(110deg,rgba(30,22,45,.9),rgba(15,13,23,.84)); }
+.settings-card .settings-copy { min-width: 0; }
+.settings-card h3 { margin: 0 0 4px; color: #eee7f8; font-size: 12px; font-weight: 650; }
+.settings-card p { max-width: 440px; color: #a39bae; font-size: 10px; line-height: 1.55; }
+.settings-controls { min-width: 0; display: flex; align-items: center; justify-content: flex-end; gap: 8px; }
+.settings-controls input { width: min(100%,290px); min-width: 120px; flex: 1; min-height: 37px; padding: 0 11px; border: 1px solid rgba(185,160,220,.18); border-radius: 10px; outline: 0; color: #efe8f8; background: rgba(8,7,14,.65); font-size: 11px; }
+.settings-controls input::placeholder { color: #7c7489; }
+.settings-controls input:focus { border-color: rgba(184,140,238,.58); box-shadow: 0 0 0 3px rgba(157,103,220,.1); }
+.settings-controls select { min-width: 160px; min-height: 37px; padding: 0 30px 0 11px; border: 1px solid rgba(185,160,220,.18); border-radius: 10px; color: #eee6f8; background: #100d17; font-size: 11px; }
+.settings-controls .quiet,.settings-controls .add-button { min-height: 37px; flex: none; white-space: nowrap; font-size: 10px; }
+.settings-controls-wrap { flex-wrap: wrap; }
+.epic-connect-controls input { max-width: 210px; }
+.settings-notices { width: min(100%,1020px); margin-top: 14px; padding: 10px 13px; border: 1px solid rgba(184,157,220,.1); border-radius: 12px; background: rgba(12,10,18,.42); }
+.settings-notices .privacy-note { margin: 0; padding: 4px 0; line-height: 1.5; }
 
 #game-form { display: flex; flex-direction: column; gap: 13px; }
 dialog { width: min(470px, calc(100vw - 30px)); padding: 26px; border: 1px solid rgba(190,200,255,.27); border-radius: 19px; color: var(--text); background: #171b2c; box-shadow: 0 30px 100px rgba(0,0,0,.72), 0 0 55px rgba(115,83,211,.14); }
@@ -412,6 +437,14 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .settings-card input { flex: 1; }
 }
 @media (max-width: 540px) {
+  .settings-groups { gap: 24px; }
+  .settings-card { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 14px; }
+  .settings-controls { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+  .settings-controls input { min-width: 0; flex-basis: 100%; }
+  .settings-controls select { flex: 1; }
+  .settings-controls .quiet,.settings-controls .add-button { flex: 1; }
+  .epic-connect-controls input { max-width: none; }
+  .settings-group-heading p { max-width: 270px; line-height: 1.45; }
   #game-form { padding: 23px 19px 19px; }
   .add-dialog-heading { margin-bottom: 20px; }
   .add-dialog-heading h2 { font-size: 22px !important; }
