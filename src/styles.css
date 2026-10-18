@@ -202,6 +202,48 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 .store-note>.icon { width: 20px; height: 20px; flex: none; }
 .store-note strong { color: #e4e8f8; font-size: 12px; }
 .store-note p { margin: 5px 0 0; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.store-title { padding-bottom: 23px; }
+.store-search-panel { max-width: 1040px; margin-bottom: 31px; padding: 21px 23px 15px; border: 1px solid rgba(184,148,226,.2); border-radius: 19px; background: radial-gradient(ellipse at 0 0,rgba(118,70,177,.2),transparent 57%),linear-gradient(125deg,rgba(25,18,37,.96),rgba(12,11,19,.94)); box-shadow: 0 18px 42px rgba(0,0,0,.24),inset 0 1px rgba(255,255,255,.035); }
+.store-search-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 17px; }
+.store-panel-kicker { color: #bda2dc; font: 700 8px "Orbitron",sans-serif; letter-spacing: 1.3px; }
+.store-search-heading h2 { margin: 5px 0 0; color: #f2eaff; font: 650 17px "Red Hat Display",sans-serif; letter-spacing: -.2px; }
+.store-provider-pills { display: flex; gap: 7px; }
+.provider-pill { min-height: 28px; display: inline-flex; align-items: center; gap: 6px; padding: 0 10px; border: 1px solid rgba(190,168,221,.15); border-radius: 9px; color: #d1c5df; background: rgba(255,255,255,.035); font-size: 10px; font-weight: 600; }
+.provider-pill .icon { width: 13px; height: 13px; }
+.provider-pill.steam .icon { color: #b8c6ed; }
+.provider-pill.epic .icon { color: #f0eaff; }
+.store-search { max-width: none; display: grid; grid-template-columns: minmax(180px,1fr) 180px auto; align-items: end; gap: 10px; margin: 0; }
+.store-query-field,.store-region-field { min-width: 0; display: flex; flex-direction: column; gap: 6px; }
+.store-query-field { height: 43px; flex-direction: row; align-items: center; gap: 9px; padding: 0 12px; border: 1px solid rgba(189,161,226,.2); border-radius: 11px; color: #a891c3; background: rgba(7,6,12,.68); transition: border-color .18s,box-shadow .18s,background .18s; }
+.store-query-field:focus-within { border-color: rgba(190,145,244,.62); background: rgba(16,11,24,.96); box-shadow: 0 0 0 3px rgba(157,103,220,.11); }
+.store-query-field>.icon { width: 16px; height: 16px; flex: none; }
+.store-query-field input { width: 100%; min-width: 0; min-height: 0; padding: 0; border: 0; outline: 0; color: #f2eaff; background: transparent; font: 500 12px "Red Hat Display",sans-serif; }
+.store-query-field input::placeholder { color: #797184; }
+.store-region-field>span { padding-left: 2px; color: #93879e; font: 700 8px "Chakra Petch",sans-serif; letter-spacing: .9px; }
+.store-region-field select { width: 100%; min-height: 29px; padding: 0 25px 0 2px; border: 0; border-bottom: 1px solid rgba(190,160,255,.24); border-radius: 0; color: #e6dcf3; background-color: transparent; font: 500 11px "Red Hat Display",sans-serif; }
+.store-search>.add-button { min-height: 43px; padding-inline: 17px; border-radius: 11px; white-space: nowrap; font-size: 11px; }
+.store-search-hint { margin: 11px 2px 0; color: #857c91; font-size: 10px; }
+.store-results-heading { max-width: 1040px; display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin: 0 1px 12px; }
+.store-results-heading h2 { margin: 0; color: #eee7f7; font: 650 14px "Red Hat Display",sans-serif; }
+.store-results-heading .scan-status { margin: 0; color: #958da1; font-size: 10px; text-align: right; }
+.store-results { max-width: 1040px; gap: 9px; }
+.store-result { gap: 16px; padding: 12px; border-color: rgba(185,158,221,.14); border-radius: 14px; background: linear-gradient(105deg,rgba(24,19,34,.9),rgba(13,12,19,.86)); box-shadow: 0 8px 24px rgba(0,0,0,.16); transition: transform .18s,border-color .18s,background .18s; }
+.store-result:hover { transform: translateY(-2px); border-color: rgba(183,137,236,.36); background: linear-gradient(105deg,rgba(31,23,45,.94),rgba(16,13,23,.91)); }
+.store-result-art { width: 132px; height: 74px; border-color: rgba(199,169,232,.16); border-radius: 9px; color: #d4b5f5; background: linear-gradient(145deg,#342448,#15111e); }
+.store-result-info { gap: 4px; }
+.store-badge { display: inline-flex; align-items: center; gap: 5px; color: #c9a4f3; font: 700 8px "Chakra Petch",sans-serif; letter-spacing: 1px; }
+.store-badge.steam::before,.store-badge.epic::before { width: 5px; height: 5px; display: inline-block; border-radius: 50%; background: currentColor; content: ""; }
+.store-badge.epic { color: #d7cfdf; }
+.store-result-info>strong { color: #f1eafa; font-size: 13px; }
+.store-price { margin-top: 1px; color: #9f96aa; font-size: 10px; }
+.store-price b { color: #d8bcf8; font-size: 14px; font-weight: 700; }
+.store-price em { padding: 2px 5px; border-radius: 5px; color: #eadcff; background: rgba(142,94,195,.22); font: 700 9px "Chakra Petch",sans-serif; }
+.store-result>.quiet { min-height: 34px; border-radius: 9px; font-size: 10px; }
+.store-note { max-width: 1040px; align-items: center; gap: 11px; margin-top: 17px; padding: 12px 14px; border-color: rgba(184,157,220,.11); border-radius: 12px; color: #cbb4e8; background: rgba(16,13,23,.6); }
+.store-note-icon { width: 28px; height: 28px; flex: none; display: grid; place-items: center; border: 1px solid rgba(183,145,242,.16); border-radius: 9px; background: rgba(121,80,165,.12); }
+.store-note-icon .icon { width: 15px; height: 15px; }
+.store-note strong { color: #e5d8f3; font-size: 10px; }
+.store-note p { margin-top: 3px; font-size: 10px; }
 
 .settings-card { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 17px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 9px 24px rgba(0,0,0,.1); }
 .settings-card>div { flex: 1; }
@@ -437,6 +479,18 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .settings-card input { flex: 1; }
 }
 @media (max-width: 540px) {
+  .store-title { padding-top: 22px; }
+  .store-search-panel { padding: 17px 14px 13px; border-radius: 15px; }
+  .store-search-heading { align-items: flex-start; flex-direction: column; gap: 11px; }
+  .store-search { display: grid; grid-template-columns: minmax(0,1fr); gap: 11px; }
+  .store-region-field select { min-height: 36px; }
+  .store-search>.add-button { width: 100%; }
+  .store-results-heading { align-items: flex-start; flex-direction: column; gap: 4px; }
+  .store-results-heading .scan-status { text-align: left; }
+  .store-result { display: grid; grid-template-columns: 76px minmax(0,1fr); align-items: center; gap: 8px 11px; }
+  .store-result-art { width: 76px; height: 48px; grid-row: span 2; }
+  .store-result>.quiet { grid-column: 2; justify-self: start; margin: 0; }
+  .store-note { align-items: flex-start; }
   .settings-groups { gap: 24px; }
   .settings-card { grid-template-columns: minmax(0,1fr); gap: 12px; padding: 14px; }
   .settings-controls { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
