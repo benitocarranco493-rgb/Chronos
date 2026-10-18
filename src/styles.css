@@ -26,7 +26,7 @@
 .heroicon-definitions { position: absolute; width: 0; height: 0; overflow: hidden; }
 .icon { width: 1.1em; height: 1.1em; flex: 0 0 auto; display: inline-block; vertical-align: -0.16em; fill: none; stroke: currentColor; stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
 .icon.icon-star-solid { fill: currentColor; stroke: none; }
-html { min-width: 700px; min-height: 100%; background: var(--ink); }
+html { min-width: 700px; min-height: 100%; overflow-y: scroll; background: var(--ink); }
 body {
   min-height: 100vh;
   margin: 0;
