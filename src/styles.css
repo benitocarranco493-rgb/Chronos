@@ -112,7 +112,7 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .filter-option.selected { color: #e5d5ff; background: linear-gradient(100deg,rgba(131,89,192,.25),rgba(71,46,110,.12)); }
 .filter-option .icon { width: 14px; height: 14px; color: #c4a3ff; }
 .controls .filter-dropdown { max-width: 190px; }
-.controls .quiet { min-height: 42px; padding: 0 12px; border-color: rgba(190,160,255,.2); border-radius: 13px 13px 5px 13px; color: #c9bfdc; background: linear-gradient(145deg,rgba(25,20,38,.96),rgba(12,11,19,.98)); box-shadow: inset 0 1px rgba(255,255,255,.04),0 5px 13px rgba(0,0,0,.2); font-size: 10px; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease,color .18s ease; }
+.controls .quiet { width: 138px; min-height: 46px; padding: 0 10px; border-color: rgba(190,160,255,.2); border-radius: 13px 13px 5px 13px; color: #c9bfdc; background: linear-gradient(145deg,rgba(25,20,38,.96),rgba(12,11,19,.98)); box-shadow: inset 0 1px rgba(255,255,255,.04),0 5px 13px rgba(0,0,0,.2); font-size: 10px; transition: transform .18s ease,border-color .18s ease,box-shadow .18s ease,background .18s ease,color .18s ease; }
 .controls .quiet:hover { transform: translateY(-2px); border-color: rgba(190,160,255,.52); color: #f3edff; background: linear-gradient(145deg,#20152f,#120e1c); box-shadow: 0 8px 18px rgba(0,0,0,.28),0 0 15px rgba(153,124,230,.1); }
 .controls .quiet .icon { width: 14px; height: 14px; color: #b89cff; }
 #favorites-filter[aria-pressed="true"], #hidden-filter[aria-pressed="true"] { border-color: rgba(190,160,255,.62); color: #eee4ff; background: linear-gradient(145deg,rgba(102,67,153,.38),rgba(44,30,68,.58)); box-shadow: inset 0 1px rgba(255,255,255,.08),0 0 17px rgba(153,124,230,.14); }
@@ -395,7 +395,7 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .filter-trigger-copy small { font-size: 6px; }
   .filter-trigger-copy strong { font-size: 10px; }
   .filter-chevron { width: 22px; height: 22px; }
-  .controls .quiet { min-height: 40px; padding-inline: 9px; font-size: 10px; }
+  .controls .quiet { min-height: 42px; padding-inline: 9px; font-size: 10px; }
   .game-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 19px 15px; }
   .cartridge { border-radius: 13px 13px 17px 17px; }
   .store-search { flex-wrap: wrap; }
