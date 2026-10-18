@@ -92,10 +92,15 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 27px cla
 .shelf-title h2 span { margin-left: 5px; color: #b5b1e0; font: 11px Consolas, monospace; vertical-align: 3px; }
 .controls { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; }
 .controls select, .settings-card select, .welcome-region select, .store-search select {
-  min-height: 37px; padding: 0 30px 0 12px; border: 1px solid var(--line); border-radius: 10px;
-  color: #d9def2; background-color: #171a2b; font-size: 11px;
+  min-height: 39px; padding: 0 36px 0 14px; appearance: none; border: 1px solid rgba(190, 160, 255, .2); border-radius: 12px;
+  color: #e6dcff; background-color: #100d19; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 20 20' fill='none'%3E%3Cpath d='m5 7.5 5 5 5-5' stroke='%23c4a3ff' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; background-size: 15px;
+  box-shadow: inset 0 1px rgba(255,255,255,.035), 0 4px 12px rgba(0,0,0,.16); font-size: 11px; font-weight: 600; cursor: pointer;
+  transition: border-color .18s ease, background-color .18s ease, box-shadow .18s ease, transform .18s ease;
 }
 .controls select { max-width: 190px; }
+.controls select:hover { border-color: rgba(190,160,255,.48); background-color: #171021; }
+.controls select:focus-visible { border-color: #b89cff; outline: none; box-shadow: 0 0 0 3px rgba(174,130,255,.16), 0 7px 20px rgba(0,0,0,.25); }
+.controls select option { color: #e6dcff; background: #100d19; }
 .controls .quiet { min-height: 37px; padding: 0 11px; font-size: 11px; }
 #favorites-filter[aria-pressed="true"], #hidden-filter[aria-pressed="true"] { border-color: rgba(174, 130, 255, .6); color: var(--mint); background: rgba(83, 52, 130, .25); }
 .scan-status { min-height: 18px; margin: 0 0 8px; color: #aeb6cf; font: 10px Consolas, monospace; letter-spacing: .1px; }
