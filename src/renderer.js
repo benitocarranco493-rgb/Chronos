@@ -1,5 +1,5 @@
 const $ = selector => document.querySelector(selector);
-const palette = ['#d3ed73','#f0a873','#81c8bd','#d189ba','#92a9e7','#e4cf75','#ee8a70'];
+const palette = ['#d3b8ff','#bd91ff','#a77cff','#e0ccff','#9165dc','#c59ae8','#8060ba'];
 let games = [];
 let settings = {};
 let selectedGameId = null;
@@ -17,7 +17,7 @@ const save = async () => {
 };
 const escapeHtml = value => String(value).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const iconSvg = (name, extraClass = '') => `<svg class="icon ${extraClass}" aria-hidden="true"><use href="#hero-${name}"/></svg>`;
-const achievementFallbackImage = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#f6dc9b"/><stop offset="1" stop-color="#bd8d43"/></linearGradient></defs><rect width="96" height="96" rx="18" fill="#24283a"/><path d="M31 17h34v12c0 18-7 29-17 29S31 47 31 29V17Zm0 7H17v8c0 13 7 20 18 21m30-29h14v8c0 13-7 20-18 21M48 58v14m-16 7h32" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>')}`;
+const achievementFallbackImage = `data:image/svg+xml,${encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 96 96"><defs><linearGradient id="g" x2="0" y2="1"><stop stop-color="#d8c2ff"/><stop offset="1" stop-color="#8e6ac7"/></linearGradient></defs><rect width="96" height="96" rx="18" fill="#24283a"/><path d="M31 17h34v12c0 18-7 29-17 29S31 47 31 29V17Zm0 7H17v8c0 13 7 20 18 21m30-29h14v8c0 13-7 20-18 21M48 58v14m-16 7h32" fill="none" stroke="url(#g)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/></svg>')}`;
 const sourceLabel = source => source === 'steam-account' ? 'Steam' : String(source || '').replace(/-/g, ' ').replace(/(^|\s)\S/g, value => value.toUpperCase());
 function render() {
   const query = $('#search').value.trim().toLowerCase(), platform = $('#platform-filter').value;
