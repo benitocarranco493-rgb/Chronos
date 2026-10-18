@@ -7,7 +7,7 @@ const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
-const { searchStores, validateEpicBrowseUrl } = require('./providers/stores');
+const { searchStores, browseStores, validateEpicBrowseUrl } = require('./providers/stores');
 const { importSteamLibrary, getSteamGameDetails, searchGridArt } = require('./providers/online');
 const { epicLoginUrl, connectEpic, epicLibrary } = require('./providers/epic');
 const { autoUpdater } = require('electron-updater');
@@ -89,6 +89,11 @@ ipcMain.handle('store:search', (_event, query, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
   const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
   return searchStores(query, { country, locale });
+});
+ipcMain.handle('store:browse', (_event, region) => {
+  const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
+  const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
+  return browseStores({ country, locale });
 });
 ipcMain.handle('steam:library', async (_event, steamId) => importSteamLibrary(await credentials.get('steam'), steamId));
 const steamDetailsCache = new Map();

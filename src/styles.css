@@ -226,6 +226,8 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 .store-results-heading { max-width: 1040px; display: flex; align-items: baseline; justify-content: space-between; gap: 14px; margin: 0 1px 12px; }
 .store-results-heading h2 { margin: 0; color: #eee7f7; font: 650 14px "Red Hat Display",sans-serif; }
 .store-results-heading .scan-status { margin: 0; color: #958da1; font-size: 10px; text-align: right; }
+.store-sort-field { display: flex; align-items: center; gap: 8px; color: #93879e; font: 700 8px "Chakra Petch",sans-serif; letter-spacing: .8px; }
+.store-sort-field select { min-height: 31px; padding: 0 26px 0 9px; border: 1px solid rgba(185,160,220,.16); border-radius: 8px; color: #e2d8eb; background: #100d17; font: 500 10px "Red Hat Display",sans-serif; }
 .store-results { max-width: 1040px; gap: 9px; }
 .store-result { gap: 16px; padding: 12px; border-color: rgba(185,158,221,.14); border-radius: 14px; background: linear-gradient(105deg,rgba(24,19,34,.9),rgba(13,12,19,.86)); box-shadow: 0 8px 24px rgba(0,0,0,.16); transition: transform .18s,border-color .18s,background .18s; }
 .store-result:hover { transform: translateY(-2px); border-color: rgba(183,137,236,.36); background: linear-gradient(105deg,rgba(31,23,45,.94),rgba(16,13,23,.91)); }
@@ -244,6 +246,47 @@ main { width: min(100%, 1600px); min-width: 0; margin: 0 auto; padding: 14px cla
 .store-note-icon .icon { width: 15px; height: 15px; }
 .store-note strong { color: #e5d8f3; font-size: 10px; }
 .store-note p { margin-top: 3px; font-size: 10px; }
+.store-discover { max-width: 1040px; animation: store-discover-in .35s ease both; }
+.store-spotlight { min-height: clamp(260px,29vw,380px); position: relative; display: flex; align-items: flex-end; overflow: hidden; margin: 0 0 27px; border: 1px solid rgba(195,166,226,.24); border-radius: 19px; background: radial-gradient(ellipse at 70% 20%,rgba(132,86,181,.34),transparent 55%),linear-gradient(120deg,#251735,#110e18 78%); box-shadow: 0 20px 45px rgba(0,0,0,.3),inset 0 1px rgba(255,255,255,.05); }
+.store-spotlight-art { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; animation: spotlight-fade .5s ease both; }
+.store-spotlight-shade { position: absolute; inset: 0; background: linear-gradient(90deg,rgba(8,6,12,.92) 0%,rgba(9,7,14,.75) 38%,rgba(12,8,18,.12) 100%),linear-gradient(0deg,rgba(8,6,12,.55),transparent 55%); }
+.store-spotlight-content { position: relative; z-index: 1; width: min(62%,560px); padding: 30px 34px; }
+.store-spotlight-kicker { color: #d3b7f0; font: 700 9px "Orbitron",sans-serif; letter-spacing: 1.7px; }
+.store-spotlight-content h2,.store-spotlight-fallback h2 { margin: 9px 0 13px; color: #fff; font: 750 clamp(23px,3.2vw,38px) "Red Hat Display",sans-serif; letter-spacing: -.7px; text-shadow: 0 3px 18px rgba(0,0,0,.4); }
+.store-spotlight-pricing { display: flex; align-items: center; gap: 9px; margin-bottom: 16px; color: #e9e0f0; font-size: 12px; }
+.store-spotlight-pricing strong { font-size: 16px; }
+.store-spotlight-pricing del { color: #c8bdce; font-size: 11px; }
+.store-spotlight-pricing em { padding: 4px 7px; border-radius: 6px; color: white; background: #7743a5; font: 700 10px "Chakra Petch",sans-serif; font-style: normal; }
+.store-spotlight-content>.add-button { min-height: 37px; border-radius: 10px; font-size: 10px; }
+.store-spotlight-controls { position: absolute; z-index: 2; right: 18px; bottom: 18px; display: flex; align-items: center; gap: 9px; padding: 5px; border: 1px solid rgba(255,255,255,.17); border-radius: 12px; color: white; background: rgba(9,7,13,.65); backdrop-filter: blur(12px); }
+.store-spotlight-controls button { width: 29px; height: 29px; border: 0; border-radius: 8px; color: white; background: rgba(255,255,255,.1); font-size: 21px; line-height: 1; transition: background .16s; }
+.store-spotlight-controls button:hover { background: rgba(165,118,211,.55); }
+.store-spotlight-controls span { min-width: 38px; font: 600 9px "Chakra Petch",sans-serif; text-align: center; }
+.store-spotlight-fallback,.store-loading { width: 100%; padding: 45px; color: #c4b7ce; }
+.store-spotlight-fallback p { color: #bbb0c5; font-size: 12px; }
+.store-shelf-nav { display: flex; gap: 7px; overflow-x: auto; margin: 0 0 29px; padding: 2px 1px 9px; scrollbar-width: thin; scrollbar-color: rgba(173,133,211,.36) transparent; }
+.store-shelf-nav button { flex: none; padding: 8px 12px; border: 1px solid rgba(182,151,215,.17); border-radius: 9px; color: #c9bdd4; background: rgba(22,17,30,.8); font: 600 10px "Chakra Petch",sans-serif; transition: color .16s,border-color .16s,background .16s; }
+.store-shelf-nav button:hover { border-color: rgba(187,139,234,.46); color: white; background: rgba(107,71,145,.28); }
+.store-shelves { display: grid; gap: 34px; }
+.store-shelf { scroll-margin-top: 78px; }
+.store-shelf-heading { display: flex; align-items: end; justify-content: space-between; gap: 12px; margin: 0 1px 13px; }
+.store-shelf-heading span { color: #ab90c5; font: 700 8px "Chakra Petch",sans-serif; letter-spacing: 1.2px; }
+.store-shelf-heading h2 { margin: 3px 0 0; color: #f0e8f7; font: 700 16px "Red Hat Display",sans-serif; }
+.store-shelf-heading small { color: #898091; font-size: 9px; }
+.store-shelf-cards { display: flex; gap: 12px; overflow-x: auto; padding: 2px 2px 14px; scroll-snap-type: x proximity; scrollbar-width: thin; scrollbar-color: rgba(173,133,211,.34) transparent; }
+.browse-store-card { width: 178px; flex: 0 0 178px; overflow: hidden; scroll-snap-align: start; border: 1px solid rgba(184,157,220,.14); border-radius: 12px; background: linear-gradient(150deg,rgba(27,21,37,.97),rgba(13,12,19,.96)); box-shadow: 0 8px 22px rgba(0,0,0,.19); transition: transform .2s,border-color .2s,box-shadow .2s; }
+.browse-store-card:hover { transform: translateY(-4px); border-color: rgba(181,133,231,.4); box-shadow: 0 14px 27px rgba(0,0,0,.3),0 0 17px rgba(137,89,192,.1); }
+.browse-store-card>img { width: 100%; height: 101px; display: block; object-fit: cover; background: linear-gradient(140deg,#30203d,#13101a); }
+.browse-store-card-info { display: grid; gap: 7px; padding: 10px; }
+.browse-store-card-info .store-badge { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 7px; }
+.browse-store-card-info>strong { min-height: 32px; overflow: hidden; color: #eee7f6; font-size: 11px; line-height: 1.4; text-overflow: ellipsis; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; }
+.browse-store-card-info>div { min-height: 18px; display: flex; align-items: center; gap: 6px; }
+.browse-store-card-info del { color: #8a8291; font-size: 9px; }
+.browse-store-card-info b { color: #e2cafa; font-size: 12px; }
+.browse-store-card-info .quiet { min-height: 30px; justify-self: start; padding-inline: 9px; border-radius: 8px; font-size: 9px; }
+.store-discover-status { margin: 14px 1px 0; color: #898091; font-size: 9px; text-align: right; }
+@keyframes store-discover-in { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes spotlight-fade { from { opacity: .4; transform: scale(1.015); } to { opacity: 1; transform: scale(1); } }
 
 .settings-card { display: flex; align-items: center; gap: 12px; margin: 0 0 10px; padding: 17px; border: 1px solid var(--line); border-radius: 15px; background: var(--panel); box-shadow: 0 9px 24px rgba(0,0,0,.1); }
 .settings-card>div { flex: 1; }
@@ -479,6 +522,17 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
   .settings-card input { flex: 1; }
 }
 @media (max-width: 540px) {
+  .store-spotlight { min-height: 250px; border-radius: 15px; }
+  .store-spotlight-art { object-position: 62% center; }
+  .store-spotlight-shade { background: linear-gradient(90deg,rgba(8,6,12,.88),rgba(9,7,14,.36)),linear-gradient(0deg,rgba(8,6,12,.7),transparent 75%); }
+  .store-spotlight-content { width: 100%; padding: 22px 19px 54px; }
+  .store-spotlight-content h2 { max-width: 85%; font-size: 25px; }
+  .store-spotlight-controls { right: 10px; bottom: 10px; }
+  .store-spotlight-fallback,.store-loading { padding: 28px 20px; }
+  .store-shelves { gap: 25px; }
+  .browse-store-card { width: 156px; flex-basis: 156px; }
+  .browse-store-card>img { height: 88px; }
+  .store-discover-status { text-align: left; }
   .store-title { padding-top: 22px; }
   .store-search-panel { padding: 17px 14px 13px; border-radius: 15px; }
   .store-search-heading { align-items: flex-start; flex-direction: column; gap: 11px; }

@@ -9,6 +9,7 @@ contextBridge.exposeInMainWorld('chronos', {
   importEpicLibrary: () => ipcRenderer.invoke('epic:library'),
   disconnectEpic: () => ipcRenderer.invoke('epic:disconnect'),
   searchStores: (query, region) => ipcRenderer.invoke('store:search', query, region),
+  browseStores: region => ipcRenderer.invoke('store:browse', region),
   importSteamLibrary: steamId => ipcRenderer.invoke('steam:library', steamId),
   loadSteamGameDetails: (appId, steamProfile) => ipcRenderer.invoke('steam:game-details', appId, steamProfile),
   searchArtwork: title => ipcRenderer.invoke('art:search', title),

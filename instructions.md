@@ -84,7 +84,7 @@ Las Fases 1 a 4 y 6 a 7 están implementadas en el alcance indicado aquí. La fa
 - Permitir región/moneda configurable, indicar el momento de consulta y tratar resultados ausentes o diferencias regionales con claridad.
 - Respetar límites y condiciones de uso de los servicios; ofrecer abrir la ficha oficial cuando la tienda requiera acciones interactivas.
 
-**Estado:** búsqueda regional de Steam con precio actual/anterior/descuento, arte y enlace oficial. Si Epic rechaza la consulta, Chronos abre la búsqueda oficial en una ventana sandbox propia. La comparación de precios Epic sigue pendiente; el endpoint devolvió HTTP 403 durante la verificación Windows.
+**Estado:** la vista Store ahora incluye un escaparate con carrusel de destacados Steam, estantes regionales de ofertas, más vendidos, novedades y próximos lanzamientos, más promociones gratuitas actuales/próximas de Epic; permite abrir las fichas oficiales y buscar desde la misma página. Las búsquedas se pueden ordenar por relevancia, precio y descuento. Steam usa endpoints públicos de tienda y Epic el endpoint público de promociones. La búsqueda de catálogo y comparación de precios de Epic sigue pendiente: su GraphQL continúa respondiendo HTTP 403, por lo que se ofrece abrir la búsqueda oficial en una ventana sandbox propia.
 
 **Criterio de salida:** se pueden buscar juegos y comparar precios de ambas tiendas desde la interfaz de Chronos, con región, moneda y hora de actualización visibles.
 
