@@ -58,6 +58,25 @@ async function importSteamLibrary(apiKey, steamProfile, fetchImpl = fetch) {
   }));
 }
 
+async function getSteamGameDlc(appId, fetchImpl = fetch) {
+  const gameId = String(appId || '');
+  if (!/^\d{1,10}$/.test(gameId)) throw new Error('This Steam game has an invalid app ID.');
+  const url = new URL('https://store.steampowered.com/api/dlcforapp/');
+  url.searchParams.set('appid', gameId);
+  const response = await fetchImpl(url, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error(`Steam DLC lookup returned HTTP ${response.status}.`);
+  const payload = await response.json();
+  if (Number(payload?.status) !== 1 || !Array.isArray(payload.dlc)) throw new Error('Steam did not provide DLC details for this game.');
+  const seen = new Set();
+  return payload.dlc.flatMap(item => {
+    const id = String(item?.id || ''), title = String(item?.name || '').trim();
+    if (!/^\d{1,10}$/.test(id) || !title || seen.has(id)) return [];
+    seen.add(id);
+    const art = typeof item.header_image === 'string' && /^https:\/\//i.test(item.header_image) ? item.header_image : '';
+    return [{ id: `steam-dlc-${id}`, title: title.slice(0, 240), art, source: 'steam' }];
+  }).slice(0, 100);
+}
+
 async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetch) {
   if (!apiKey) throw new Error('Save a Steam Web API key in Settings to load achievements.');
   const gameId = String(appId || '');
@@ -156,4 +175,4 @@ async function searchGridArt(apiKey, title, fetchImpl = fetch) {
   return results;
 }
 
-module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, searchGridArt };
+module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, getSteamGameDlc, searchGridArt };

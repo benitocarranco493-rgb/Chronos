@@ -88,6 +88,15 @@ $('#favorites-filter').onclick=()=>{favoritesOnly=!favoritesOnly;$('#favorites-f
 $('#hidden-filter').onclick=()=>{showHidden=!showHidden;$('#hidden-filter').setAttribute('aria-pressed',String(showHidden));$('#hidden-filter').innerHTML=`${iconSvg(showHidden?'eye':'eye-slash')} ${showHidden?'Hide hidden':'Show hidden'}`;render()};
 $('#choose-launch').onclick=async()=>{const target=await window.chronos.pickGame();if(target)$('#game-launch').value=target};
 $('#game-form').addEventListener('submit',async event=>{event.preventDefault();const title=$('#game-title').value.trim();if(!title)return;const launch=$('#game-launch').value.trim(),priceType=$('#game-free-to-play').value,freeToPlay=priceType==='unknown'?undefined:priceType==='free';if(selectedGameId){const game=games.find(item=>item.id===selectedGameId);if(game){Object.assign(game,{title,platform:$('#game-platform').value,launch,art:$('#game-art').value.trim()});if(freeToPlay===undefined)delete game.freeToPlay;else game.freeToPlay=freeToPlay;game.launchOptions=launch?[{platform:game.platform,source:game.source||'manual',launch}]:[]}}else games.unshift({id:`manual-${Date.now()}`,title,platform:$('#game-platform').value,source:'manual',sources:['manual'],launch,launchOptions:launch?[{platform:'Manual',source:'manual',launch}]:[],art:$('#game-art').value.trim(),...(freeToPlay===undefined?{}:{freeToPlay}),added:Date.now()});await save();render();$('#game-form').reset();$('#add-dialog').close();selectedGameId=null});
+function renderDlcPanel(dlcs,{steam=false,message=''}={}){
+  const panel=$('#detail-dlc-panel'),list=$('#detail-dlc-list');
+  $('#owned-dlc-heading').textContent=steam?'Steam DLC':'Owned add-ons';
+  panel.querySelector('.owned-dlc-heading p').textContent=steam?'Downloadable content listed for this game':'Included with this game';
+  $('#detail-dlc-count').textContent=dlcs.length?String(dlcs.length).padStart(2,'0'):'';
+  list.innerHTML=message?`<p class="owned-dlc-message">${escapeHtml(message)}</p>`:dlcs.map(dlc=>`<article class="owned-dlc-item"><div class="owned-dlc-art">${dlc.art?`<img loading="lazy" decoding="async" src="${escapeHtml(dlc.art)}" alt="">`:`<span>${escapeHtml(dlc.title.slice(0,2).toUpperCase())}</span>`}</div><div><strong>${escapeHtml(dlc.title)}</strong><small>${steam?'AVAILABLE ON STEAM':`${escapeHtml(sourceLabel(dlc.source||'epic-account'))} ADD-ON`}</small></div></article>`).join('');
+  panel.classList.toggle('hidden',!dlcs.length&&!message);
+  list.querySelectorAll('img').forEach(image=>image.onerror=()=>{image.parentElement.innerHTML=`<span>${escapeHtml(image.closest('.owned-dlc-item').querySelector('strong').textContent.slice(0,2).toUpperCase())}</span>`});
+}
 function openDetails(id){
   const game=games.find(item=>item.id===id);if(!game)return;selectedGameId=id;showAllAchievements=false;achievementDetails=null;
   const steamAppId=game.id.match(/^steam-(\d+)$/)?.[1];
@@ -97,7 +106,8 @@ function openDetails(id){
   const detailCover=$('#detail-cover img');if(detailCover)detailCover.onerror=()=>{$('#detail-cover').innerHTML=labelArt(game.title,Math.max(0,games.indexOf(game)))};
   $('#detail-art-caption').textContent=game.installed?'INSTALLED ON THIS DEVICE':game.source==='steam-account'?'STEAM LIBRARY':'YOUR GAME COLLECTION';
   $('#detail-playtime').textContent=formatPlaytime(game);$('#detail-last-played').textContent=game.lastPlayed?new Date(game.lastPlayed).toLocaleDateString():'Not yet';$('#detail-installed').textContent=game.installed?'Installed':'Not installed';
-  const dlcs=Array.isArray(game.dlcs)?game.dlcs:[];$('#detail-dlc-panel').classList.toggle('hidden',!dlcs.length);$('#detail-dlc-count').textContent=String(dlcs.length).padStart(2,'0');$('#detail-dlc-list').innerHTML=dlcs.map(dlc=>`<article class="owned-dlc-item"><div class="owned-dlc-art">${dlc.art?`<img loading="lazy" decoding="async" src="${escapeHtml(dlc.art)}" alt="">`:`<span>${escapeHtml(dlc.title.slice(0,2).toUpperCase())}</span>`}</div><div><strong>${escapeHtml(dlc.title)}</strong><small>${escapeHtml(sourceLabel(dlc.source||'epic-account'))} ADD-ON</small></div></article>`).join('');$('#detail-dlc-list').querySelectorAll('img').forEach(image=>image.onerror=()=>{image.parentElement.innerHTML=`<span>${escapeHtml(image.closest('.owned-dlc-item').querySelector('strong').textContent.slice(0,2).toUpperCase())}</span>`});
+  const dlcs=Array.isArray(game.dlcs)?game.dlcs:[];renderDlcPanel(dlcs);
+  if(steamAppId)renderDlcPanel([],{steam:true,message:'Loading downloadable content from Steam…'});
   $('#detail-meta').textContent=[`Added ${new Date(game.added||Date.now()).toLocaleDateString()}`,game.favorite?'Favorite':'',game.sources?.length?`Sources: ${game.sources.map(sourceLabel).join(', ')}`:''].filter(Boolean).join('  ·  ');
   $('#detail-favorite').innerHTML=iconSvg(game.favorite?'star-solid':'star');$('#detail-favorite').setAttribute('aria-pressed',String(Boolean(game.favorite)));$('#detail-favorite').title=game.favorite?'Remove from favorites':'Add to favorites';$('#detail-hide').innerHTML=`${iconSvg(game.hidden?'eye':'eye-slash')} ${game.hidden?'Show on shelf':'Hide from shelf'}`;
   const options=game.launchOptions?.length?game.launchOptions:game.launch?[{platform:game.platform,source:game.source,launch:game.launch}]:[];
@@ -115,6 +125,7 @@ function openDetails(id){
     }).catch(error=>{if(selectedGameId!==id)return;$('#achievement-message').textContent=error.message||'Steam achievements could not be loaded.'});
   }
   $('#detail-dialog').showModal();
+  if(steamAppId)window.chronos.loadSteamGameDlc(steamAppId).then(steamDlcs=>{if(selectedGameId!==id)return;renderDlcPanel(steamDlcs,{steam:true,message:steamDlcs.length?'':'No DLC is listed for this game.'})}).catch(error=>{if(selectedGameId!==id)return;renderDlcPanel([],{steam:true,message:error.message||'Steam DLC could not be loaded.'})});
 }
 $('#detail-hide').onclick=async()=>{const game=games.find(item=>item.id===selectedGameId);if(game){game.hidden=!game.hidden;await save();openDetails(game.id);render()}};
 $('#detail-favorite').onclick=async()=>{const game=games.find(item=>item.id===selectedGameId);if(game){game.favorite=!game.favorite;await save();openDetails(game.id);render()}};

@@ -8,7 +8,7 @@ const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
 const { searchStores, browseStores, validateEpicBrowseUrl } = require('./providers/stores');
-const { importSteamLibrary, getSteamGameDetails, searchGridArt } = require('./providers/online');
+const { importSteamLibrary, getSteamGameDetails, getSteamGameDlc, searchGridArt } = require('./providers/online');
 const { epicLoginUrl, connectEpic, epicLibrary } = require('./providers/epic');
 const { autoUpdater } = require('electron-updater');
 
@@ -105,6 +105,15 @@ ipcMain.handle('steam:game-details', async (_event, appId, steamProfile) => {
   const details = await getSteamGameDetails(await credentials.get('steam'), steamProfile, appId);
   steamDetailsCache.set(cacheKey, { details, expiresAt: Date.now() + 10 * 60 * 1000 });
   return details;
+});
+const steamDlcCache = new Map();
+ipcMain.handle('steam:game-dlc', async (_event, appId) => {
+  if (typeof appId !== 'string' || !/^\d{1,10}$/.test(appId)) throw new Error('Invalid Steam game ID.');
+  const cached = steamDlcCache.get(appId);
+  if (cached && cached.expiresAt > Date.now()) return cached.dlcs;
+  const dlcs = await getSteamGameDlc(appId);
+  steamDlcCache.set(appId, { dlcs, expiresAt: Date.now() + 6 * 60 * 60 * 1000 });
+  return dlcs;
 });
 ipcMain.handle('art:search', async (_event, title) => searchGridArt(await credentials.get('steamgriddb'), title));
 ipcMain.handle('art:download', async (_event, imageUrl) => {
