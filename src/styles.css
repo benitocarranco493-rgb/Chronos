@@ -591,3 +591,10 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
 }
+
+.play-next-list { display:grid; gap:7px; max-width:760px; margin:0 0 18px; }
+.play-next-row { min-width:0; display:grid; grid-template-columns:28px minmax(120px,1fr) auto auto auto; align-items:center; gap:8px; padding:8px 10px; border:1px solid rgba(185,158,221,.14); border-radius:10px; color:#dcd2e8; background:linear-gradient(100deg,rgba(31,23,45,.8),rgba(16,13,23,.8)); }
+.play-next-row>span { color:#b999e7; text-align:center; font:700 11px "Chakra Petch",sans-serif; }
+.play-next-row>strong { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
+.play-next-row .quiet { min-height:28px; padding:0 9px; font-size:10px; }
+@media(max-width:650px){.play-next-row{grid-template-columns:20px minmax(80px,1fr) auto auto}.play-next-row [data-queue-remove],.play-next-row [data-store-queue-remove]{grid-column:2/-1;justify-self:end}}

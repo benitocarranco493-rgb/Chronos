@@ -58,6 +58,18 @@ async function importSteamLibrary(apiKey, steamProfile, fetchImpl = fetch) {
   }));
 }
 
+async function getSteamGameGenres(appId, fetchImpl = fetch) {
+  if (!/^\d{1,10}$/.test(String(appId))) throw new Error('Invalid Steam game ID.');
+  const url = new URL('https://store.steampowered.com/api/appdetails');
+  url.search = new URLSearchParams({ appids: String(appId), cc: 'us', l: 'en' }).toString();
+  const response = await fetchImpl(url, { signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error(`Steam genre lookup returned HTTP ${response.status}.`);
+  const payload = await response.json();
+  const app = payload?.[String(appId)];
+  if (!app?.success) return [];
+  return [...new Set((app.data?.genres || []).map(item => item.description).filter(value => typeof value === 'string' && value.trim()))].slice(0, 20);
+}
+
 async function getSteamGameDlc(appId, fetchImpl = fetch) {
   const gameId = String(appId || '');
   if (!/^\d{1,10}$/.test(gameId)) throw new Error('This Steam game has an invalid app ID.');
@@ -175,4 +187,4 @@ async function searchGridArt(apiKey, title, fetchImpl = fetch) {
   return results;
 }
 
-module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, getSteamGameDlc, searchGridArt };
+module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, getSteamGameGenres, getSteamGameDlc, searchGridArt };

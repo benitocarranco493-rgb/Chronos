@@ -8,7 +8,7 @@ const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
 const { searchStores, browseStores, validateEpicBrowseUrl } = require('./providers/stores');
-const { importSteamLibrary, getSteamGameDetails, getSteamGameDlc, searchGridArt } = require('./providers/online');
+const { importSteamLibrary, getSteamGameDetails, getSteamGameGenres, getSteamGameDlc, searchGridArt } = require('./providers/online');
 const { epicLoginUrl, connectEpic, epicLibrary } = require('./providers/epic');
 const { autoUpdater } = require('electron-updater');
 
@@ -96,6 +96,25 @@ ipcMain.handle('store:browse', (_event, region) => {
   return browseStores({ country, locale });
 });
 ipcMain.handle('steam:library', async (_event, steamId) => importSteamLibrary(await credentials.get('steam'), steamId));
+const steamGenresCache = new Map();
+ipcMain.handle('steam:genres', async (_event, appIds) => {
+  if (!Array.isArray(appIds) || appIds.length > 500 || appIds.some(id => typeof id !== 'string' || !/^\d{1,10}$/.test(id))) throw new Error('Invalid Steam genre request.');
+  const result = {};
+  const ids = [...new Set(appIds)];
+  for (let index = 0; index < ids.length; index += 5) {
+    await Promise.all(ids.slice(index, index + 5).map(async id => {
+      const cached = steamGenresCache.get(id);
+      if (cached && cached.expiresAt > Date.now()) { result[id] = { genres: cached.genres, fetchedAt: cached.fetchedAt }; return; }
+      try {
+        const genres = await getSteamGameGenres(id);
+        const fetchedAt = Date.now();
+        steamGenresCache.set(id, { genres, fetchedAt, expiresAt: fetchedAt + 30 * 24 * 60 * 60 * 1000 });
+        result[id] = { genres, fetchedAt };
+      } catch (error) { result[id] = { error: error.message }; }
+    }));
+  }
+  return result;
+});
 const steamDetailsCache = new Map();
 ipcMain.handle('steam:game-details', async (_event, appId, steamProfile) => {
   if (typeof appId !== 'string' || !/^\d{1,10}$/.test(appId) || typeof steamProfile !== 'string' || steamProfile.length > 200) throw new Error('Invalid Steam game details request.');

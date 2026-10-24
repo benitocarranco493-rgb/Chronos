@@ -23,6 +23,9 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 2 — Organize and browse the library
 
+**Status:** completed. Chronos now caches Steam genres locally and filters by genre, provides launcher/platform narrowing, dedicated Favorites and Play Next views, an editable ordered game queue, saved storefront listings, and a Most played sort. Existing library data migrates to schema 2 automatically.
+
+
 - Add Steam genre/tag metadata with a local cache and a genre filter; keep the library usable offline and when metadata lookup fails.
 - Add launcher-specific library pages and dedicated Favorites and **Play Next** lists.
 - Let users add/remove games from Play Next, reorder that list, and bookmark store listings there.

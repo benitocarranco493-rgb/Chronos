@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SCHEMA_VERSION = 1;
+const SCHEMA_VERSION = 2;
 
 function cleanGame(game) {
   if (!game || typeof game !== 'object' || typeof game.title !== 'string' || !game.title.trim()) return null;
@@ -21,6 +21,8 @@ function cleanGame(game) {
     installed: game.installed === false ? false : game.installed === true,
     playtimeMinutes: Number.isFinite(game.playtimeMinutes) ? Math.max(0, game.playtimeMinutes) : 0,
     playtimeKnown: game.playtimeKnown === true || (Number.isFinite(game.playtimeMinutes) && game.playtimeMinutes > 0),
+    genres: Array.isArray(game.genres) ? [...new Set(game.genres.filter(value => typeof value === 'string').map(value => value.trim().slice(0, 60)).filter(Boolean))].slice(0, 30) : [],
+    genresFetchedAt: Number.isFinite(game.genresFetchedAt) ? game.genresFetchedAt : 0,
     hidden: game.hidden === true
   };
 }
@@ -39,6 +41,10 @@ function migrate(database) {
     current = { schemaVersion: 1, games: Array.isArray(current.games) ? current.games : [], settings: current.settings || {} };
     version = 1;
   }
+  if (version < 2) {
+    current = { ...current, schemaVersion: 2, playNext: Array.isArray(current.playNext) ? current.playNext : [], playNextStore: Array.isArray(current.playNextStore) ? current.playNextStore : [] };
+    version = 2;
+  }
   if (version !== SCHEMA_VERSION) throw new Error(`Unsupported Chronos data version: ${version}`);
   const uniqueGames = new Map();
   for (const game of (Array.isArray(current.games) ? current.games : []).map(cleanGame).filter(Boolean)) {
@@ -47,7 +53,9 @@ function migrate(database) {
   return {
     schemaVersion: SCHEMA_VERSION,
     games: [...uniqueGames.values()],
-    settings: cleanSettings(current.settings)
+    settings: cleanSettings(current.settings),
+    playNext: [...new Set((Array.isArray(current.playNext) ? current.playNext : []).filter(id => typeof id === 'string'))].slice(0, 1000),
+    playNextStore: (Array.isArray(current.playNextStore) ? current.playNextStore : []).filter(item => item && typeof item.title === 'string' && typeof item.url === 'string' && /^https:\/\/(store\.steampowered\.com|store\.epicgames\.com)\//i.test(item.url)).slice(0, 100).map(item => ({ store: item.store === 'epic' ? 'epic' : 'steam', title: item.title.slice(0, 240), url: item.url.slice(0, 2048), art: typeof item.art === 'string' ? item.art.slice(0, 2048) : '' }))
   };
 }
 
