@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SCHEMA_VERSION = 4;
+const SCHEMA_VERSION = 5;
 
 function cleanGame(game) {
   if (!game || typeof game !== 'object' || typeof game.title !== 'string' || !game.title.trim()) return null;
@@ -63,6 +63,7 @@ function migrate(database) {
   }
   if (version < 3) { current = { ...current, schemaVersion: 3 }; version = 3; }
   if (version < 4) { current = { ...current, schemaVersion: 4 }; version = 4; }
+  if (version < 5) { current = { ...current, schemaVersion: 5, wishlist: Array.isArray(current.wishlist) ? current.wishlist : [] }; version = 5; }
   if (version !== SCHEMA_VERSION) throw new Error(`Unsupported Chronos data version: ${version}`);
   const uniqueGames = new Map();
   for (const game of (Array.isArray(current.games) ? current.games : []).map(cleanGame).filter(Boolean)) {
@@ -73,7 +74,8 @@ function migrate(database) {
     games: [...uniqueGames.values()],
     settings: cleanSettings(current.settings),
     playNext: [...new Set((Array.isArray(current.playNext) ? current.playNext : []).filter(id => typeof id === 'string'))].slice(0, 1000),
-    playNextStore: (Array.isArray(current.playNextStore) ? current.playNextStore : []).filter(item => item && typeof item.title === 'string' && typeof item.url === 'string' && /^https:\/\/(store\.steampowered\.com|store\.epicgames\.com)\//i.test(item.url)).slice(0, 100).map(item => ({ store: item.store === 'epic' ? 'epic' : 'steam', title: item.title.slice(0, 240), url: item.url.slice(0, 2048), art: typeof item.art === 'string' ? item.art.slice(0, 2048) : '' }))
+    playNextStore: (Array.isArray(current.playNextStore) ? current.playNextStore : []).filter(item => item && typeof item.title === 'string' && typeof item.url === 'string' && /^https:\/\/(store\.steampowered\.com|store\.epicgames\.com)\//i.test(item.url)).slice(0, 100).map(item => ({ store: item.store === 'epic' ? 'epic' : 'steam', title: item.title.slice(0, 240), url: item.url.slice(0, 2048), art: typeof item.art === 'string' ? item.art.slice(0, 2048) : '' })),
+    wishlist: (Array.isArray(current.wishlist) ? current.wishlist : []).filter(item => item && typeof item.title === 'string' && typeof item.url === 'string' && /^https:\/\/(store\.steampowered\.com|store\.epicgames\.com)\//i.test(item.url)).slice(0, 500).map(item => ({ store: item.store === 'epic' ? 'epic' : 'steam', id: typeof item.id === 'string' ? item.id.slice(0, 120) : '', title: item.title.slice(0, 240), url: item.url.slice(0, 2048), art: typeof item.art === 'string' ? item.art.slice(0, 2048) : '', currentPrice: Number.isFinite(item.currentPrice) ? Math.max(0, item.currentPrice) : null, previousPrice: Number.isFinite(item.previousPrice) ? Math.max(0, item.previousPrice) : null, currency: typeof item.currency === 'string' ? item.currency.slice(0, 8) : '', checkedAt: Number.isFinite(item.checkedAt) ? item.checkedAt : 0 }))
   };
 }
 

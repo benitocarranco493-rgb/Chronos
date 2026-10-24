@@ -635,3 +635,15 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 #media-viewer-caption { margin:10px 0 0; color:#bdb2cc; font-size:11px; }
 .media-viewer .dialog-close { position:absolute; top:8px; right:8px; z-index:2; width:34px; height:34px; border:1px solid rgba(255,255,255,.2); border-radius:9px; color:white; background:rgba(7,6,10,.7); }
 @media(max-width:600px){.detail-metadata-facts{grid-template-columns:1fr}.detail-media-thumb{width:116px;height:66px}.media-viewer{width:calc(100vw - 20px);padding:10px}}
+
+.store-view-tabs { max-width:1040px; display:flex; gap:7px; margin:20px 0 15px; padding:4px; border:1px solid rgba(185,158,221,.12); border-radius:12px; background:rgba(16,13,23,.78); }
+.store-view-tabs button { min-height:33px; display:flex; align-items:center; gap:7px; padding:0 13px; border:1px solid transparent; border-radius:8px; color:#aaa0b7; background:transparent; font:600 10px "Red Hat Display",sans-serif; cursor:pointer; }
+.store-view-tabs button[aria-pressed="true"] { border-color:rgba(190,145,244,.25); color:#f1e8ff; background:linear-gradient(110deg,rgba(118,78,169,.42),rgba(58,37,85,.32)); }
+.store-view-tabs button span { min-width:17px; padding:2px 5px; border-radius:8px; color:#dfcaff; background:rgba(175,137,226,.17); font:700 8px "Chakra Petch",sans-serif; text-align:center; }
+.store-wishlist-view { max-width:1040px; margin-top:18px; }
+.wishlist-heading { display:flex; align-items:center; justify-content:space-between; gap:14px; margin-bottom:12px; }
+.wishlist-heading h2 { margin:0; color:#eee7f7; font:650 16px "Red Hat Display",sans-serif; }
+.wishlist-heading p { margin:4px 0 0; color:#958da1; font-size:10px; }
+.wishlist-empty { padding:24px; border:1px dashed rgba(185,158,221,.2); border-radius:12px; color:#a79caf; font-size:11px; text-align:center; }
+#store-load-more { display:block; min-width:160px; margin:15px auto 0; }
+@media(max-width:600px){.store-view-tabs{overflow-x:auto}.store-view-tabs button{flex:none;padding:0 10px}.wishlist-heading{align-items:flex-start;flex-direction:column}}

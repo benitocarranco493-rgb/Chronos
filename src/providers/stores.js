@@ -110,19 +110,24 @@ async function browseStores({ country = 'ES', locale = 'es-ES', fetchImpl = fetc
   return { shelves, spotlight: spotlightItems, checkedAt: Date.now(), region, providers: { steam: steamAvailable, epic: epicAvailable } };
 }
 
-async function searchStores(query, { country = 'ES', locale = 'es-ES', fetchImpl = fetch } = {}) {
+async function searchStores(query, { country = 'ES', locale = 'es-ES', start = 0, fetchImpl = fetch } = {}) {
   const term = String(query || '').trim().slice(0, 100);
   if (!term) return { results: [], checkedAt: Date.now() };
   const cc = country.toUpperCase();
   const language = locale.split('-')[0];
   const region = { country: cc, locale };
+  const offset = Number.isInteger(start) ? Math.max(0, Math.min(240, start)) : 0;
   const steamUrl = new URL(STEAM_ENDPOINT);
-  steamUrl.search = new URLSearchParams({ term, l: language, cc }).toString();
-  const epicQuery = `query searchStore($keywords:String!,$country:String!,$locale:String!){Catalog{searchStore(count:12,country:$country,keywords:$keywords,locale:$locale,sortBy:"relevancy",sortDir:"DESC",start:0,withPrice:true){elements{title id productSlug urlSlug keyImages{type url} price(country:$country){totalPrice{discountPrice originalPrice discount currencyCode currencyInfo{decimals} fmtPrice(locale:$locale){discountPrice}}}}}}}`;
-  const [steamResponse, epicResponse] = await Promise.all([
+  steamUrl.search = new URLSearchParams({ term, l: language, cc, count: '12', start: String(offset) }).toString();
+  const epicQuery = `query searchStore($keywords:String!,$country:String!,$locale:String!){Catalog{searchStore(count:12,country:$country,keywords:$keywords,locale:$locale,sortBy:"relevancy",sortDir:"DESC",start:${offset},withPrice:true){elements{title id productSlug urlSlug keyImages{type url} price(country:$country){totalPrice{discountPrice originalPrice discount currencyCode currencyInfo{decimals} fmtPrice(locale:$locale){discountPrice}}}}}}}`;
+  const [steamResponse, firstEpicResponse] = await Promise.all([
     requestJson(fetchImpl, steamUrl, { headers: { Accept: 'application/json' }, signal: AbortSignal.timeout(12000) }),
     requestJson(fetchImpl, EPIC_ENDPOINT, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ query: epicQuery, variables: { keywords: term, country: cc, locale } }), signal: AbortSignal.timeout(12000) })
   ]);
+  const epicQueryFailed = !firstEpicResponse.ok || Boolean(firstEpicResponse.data?.errors?.length);
+  const epicResponse = epicQueryFailed
+    ? await requestJson(fetchImpl, EPIC_ENDPOINT, { method: 'POST', headers: { Accept: 'application/json', 'Content-Type': 'application/json' }, body: JSON.stringify({ query: epicQuery, variables: { keywords: term, country: cc, locale } }), signal: AbortSignal.timeout(12000) })
+    : firstEpicResponse;
   const results = [];
   const steamAvailable = steamResponse.ok && Array.isArray(steamResponse.data?.items);
   const epicItems = epicResponse.data?.data?.Catalog?.searchStore?.elements;
@@ -136,7 +141,8 @@ async function searchStores(query, { country = 'ES', locale = 'es-ES', fetchImpl
   if (!results.length && !steamAvailable && !epicAvailable) {
     throw new Error('Store search is unavailable. Check your internet connection and try again.');
   }
-  return { results, checkedAt: Date.now(), region, providers: { steam: steamAvailable, epic: epicAvailable } };
+  const hasMore = (steamAvailable && steamResponse.data.items.length >= 12) || (epicAvailable && epicItems.length >= 12);
+  return { results, checkedAt: Date.now(), region, hasMore, providers: { steam: steamAvailable, epic: epicAvailable } };
 }
 
 module.exports = { searchStores, browseStores, formatSteam, formatEpic, formatSteamFeatured, formatEpicFree, validateEpicBrowseUrl };

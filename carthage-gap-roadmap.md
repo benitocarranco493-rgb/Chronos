@@ -58,10 +58,13 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 5 — Complete store discovery and comparison
 
-- Add explicit Deals and Free Now views, sale/price filters, pagination, and richer product details.
-- Add an optional IsThereAnyDeal connection for supported shops such as GOG, Microsoft Store, EA, Blizzard, and Epic, with clear source attribution and regional prices.
-- Add an in-app wishlist with price comparisons and Play Next integration.
-- Retry Epic's in-app catalog search when its endpoint permits it; keep the official Epic browse fallback until then.
+**Status:** core complete. Store now has Discover, Deals, Free Now, and Wishlist views; sale/free/store filters; regional sorting and paginated search; retry-once for Epic catalog failures; and a saved wishlist with regional price refresh and Play Next integration. Wishlist prices show their last checked date and reductions. The library migrates to schema 5. The optional IsThereAnyDeal connector remains pending approval for use in Chronos, a public app.
+
+
+- [x] Add explicit Deals and Free Now views, sale/price filters, pagination, and richer product details.
+- [ ] Add an optional IsThereAnyDeal connection for other shops after confirming API approval for the public Chronos app.
+- [x] Add an in-app wishlist with regional price refresh, price-drop indicators, and Play Next integration.
+- [x] Retry Epic's in-app catalog search once after a failed response; keep the official Epic browse fallback.
 
 **Exit criteria:** store browsing, free offers, deals, wishlist, and price comparisons have clear availability states and never present stale prices as guaranteed.
 

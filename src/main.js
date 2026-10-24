@@ -90,7 +90,8 @@ ipcMain.handle('epic:disconnect', () => credentials.set('epic', ''));
 ipcMain.handle('store:search', (_event, query, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
   const locale = typeof region?.locale === 'string' && /^[a-z]{2}-[A-Z]{2}$/.test(region.locale) ? region.locale : 'es-ES';
-  return searchStores(query, { country, locale });
+  const start = Number.isInteger(region?.start) ? Math.max(0, Math.min(240, region.start)) : 0;
+  return searchStores(query, { country, locale, start });
 });
 ipcMain.handle('store:browse', (_event, region) => {
   const country = typeof region?.country === 'string' && /^[A-Za-z]{2}$/.test(region.country) ? region.country.toUpperCase() : 'ES';
