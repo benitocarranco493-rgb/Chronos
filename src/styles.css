@@ -598,3 +598,12 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .play-next-row>strong { overflow:hidden; font-size:12px; text-overflow:ellipsis; white-space:nowrap; }
 .play-next-row .quiet { min-height:28px; padding:0 9px; font-size:10px; }
 @media(max-width:650px){.play-next-row{grid-template-columns:20px minmax(80px,1fr) auto auto}.play-next-row [data-queue-remove],.play-next-row [data-store-queue-remove]{grid-column:2/-1;justify-self:end}}
+
+.playtime-editor { display:grid; gap:7px; margin-top:14px; padding-top:12px; border-top:1px solid var(--line); }
+.playtime-editor>label { color:#c9b9dc; font-size:11px; font-weight:650; }
+.playtime-editor>div { display:flex; align-items:center; gap:8px; }
+.playtime-editor input { width:130px; min-height:32px; padding:0 9px; border:1px solid rgba(185,158,221,.18); border-radius:8px; color:#eee7f7; background:#100d17; }
+.playtime-editor small,.detail-session-history small { color:#92899e; font-size:10px; line-height:1.5; }
+.detail-session-history { display:grid; gap:5px; margin-top:11px; }
+.session-history-row { display:flex; justify-content:space-between; gap:12px; color:#aaa0b7; font-size:10px; }
+.session-history-row strong { color:#dfd1f1; font-weight:650; }

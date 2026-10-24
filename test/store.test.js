@@ -15,7 +15,7 @@ test('migrates legacy games, removes keys, and deduplicates stable ids', () => {
     { title: '   ' }
   ], settings: { region: 'ES', 'steam-key': 'must-not-be-saved' } });
 
-  assert.equal(database.schemaVersion, 2);
+  assert.equal(database.schemaVersion, 3);
   assert.equal(database.games.length, 2);
   assert.equal(database.games[0].title, 'Example');
   assert.deepEqual(database.settings, { region: 'ES' });

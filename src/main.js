@@ -2,6 +2,7 @@ const { app, BrowserWindow, ipcMain, shell, dialog, safeStorage } = require('ele
 const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
+const { spawn } = require('node:child_process');
 const { pathToFileURL } = require('node:url');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
@@ -24,6 +25,7 @@ const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
 autoUpdater.autoDownload = false;
 let availableUpdate = false;
+let activeTrackedGames = 0;
 const notifyUpdate = payload => BrowserWindow.getAllWindows().forEach(win => win.webContents.send('update:state', payload));
 autoUpdater.on('update-available', info => { availableUpdate = true; notifyUpdate({ state: 'available', version: info.version }); });
 autoUpdater.on('update-not-available', info => notifyUpdate({ state: 'current', version: info.version }));
@@ -46,7 +48,7 @@ app.whenReady().then(() => {
   createWindow();
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
 });
-app.on('window-all-closed', () => { if (process.platform !== 'darwin') app.quit(); });
+app.on('window-all-closed', () => { if (process.platform !== 'darwin' && !(process.platform === 'win32' && activeTrackedGames > 0)) app.quit(); });
 
 ipcMain.handle('data:load', async (_event, legacy = {}) => {
   const legacySettings = legacy.settings && typeof legacy.settings === 'object' ? legacy.settings : {};
@@ -151,7 +153,42 @@ ipcMain.handle('art:download', async (_event, imageUrl) => {
   fs.writeFileSync(filePath, bytes);
   return pathToFileURL(filePath).href;
 });
-ipcMain.handle('game:launch', (_event, target) => launchGame(target));
+ipcMain.handle('game:launch', async (_event, gameId, target) => {
+  if (typeof gameId !== 'string' || typeof target !== 'string' || target.length > 2048) return { launched: false, tracked: false };
+  if (process.platform !== 'win32' || !/\.exe$/i.test(target) || !fs.existsSync(target)) return { launched: await launchGame(target), tracked: false };
+  const database = store.load();
+  if (!database.games.some(game => game.id === gameId)) return { launched: false, tracked: false };
+  const startedAt = Date.now();
+  let child;
+  try { child = spawn(target, [], { windowsHide: true, stdio: 'ignore' }); }
+  catch { return { launched: false, tracked: false }; }
+  let spawned = false;
+  let finalized = false;
+  const finish = () => {
+    if (finalized || !spawned) return;
+    finalized = true;
+    activeTrackedGames = Math.max(0, activeTrackedGames - 1);
+    const endedAt = Date.now(), durationSeconds = Math.max(0, Math.floor((endedAt - startedAt) / 1000));
+    try {
+      const latest = store.load(), game = latest.games.find(item => item.id === gameId);
+      if (!game) return;
+      const session = { startedAt, endedAt, durationSeconds };
+      game.sessions = [...(game.sessions || []), session].slice(-100);
+      game.localPlaytimeMinutes = (game.localPlaytimeMinutes || 0) + durationSeconds / 60;
+      game.lastPlayed = endedAt;
+      store.save(latest);
+      BrowserWindow.getAllWindows().forEach(win => win.webContents.send('game:session-ended', { gameId, session, localPlaytimeMinutes: game.localPlaytimeMinutes, lastPlayed: endedAt }));
+    } catch (error) { console.error('Could not save the game session:', error); }
+  };
+  const launched = await new Promise(resolve => {
+    child.once('spawn', () => { spawned = true; activeTrackedGames += 1; resolve(true); });
+    child.once('error', () => resolve(false));
+    child.once('close', finish);
+  });
+  if (!launched) return { launched: false, tracked: false };
+  child.once('error', finish);
+  return { launched: true, tracked: true };
+});
 ipcMain.handle('store:open', (_event, url) => {
   if (typeof url !== 'string' || !/^https:\/\//i.test(url)) return false;
   return shell.openExternal(url);

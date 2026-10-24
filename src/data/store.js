@@ -1,7 +1,7 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const SCHEMA_VERSION = 2;
+const SCHEMA_VERSION = 3;
 
 function cleanGame(game) {
   if (!game || typeof game !== 'object' || typeof game.title !== 'string' || !game.title.trim()) return null;
@@ -21,6 +21,8 @@ function cleanGame(game) {
     installed: game.installed === false ? false : game.installed === true,
     playtimeMinutes: Number.isFinite(game.playtimeMinutes) ? Math.max(0, game.playtimeMinutes) : 0,
     playtimeKnown: game.playtimeKnown === true || (Number.isFinite(game.playtimeMinutes) && game.playtimeMinutes > 0),
+    localPlaytimeMinutes: Number.isFinite(game.localPlaytimeMinutes) ? Math.max(0, game.localPlaytimeMinutes) : 0,
+    sessions: Array.isArray(game.sessions) ? game.sessions.filter(item => item && Number.isFinite(item.startedAt) && Number.isFinite(item.endedAt) && Number.isFinite(item.durationSeconds) && item.durationSeconds >= 0).slice(-100).map(item => ({ startedAt: item.startedAt, endedAt: item.endedAt, durationSeconds: Math.round(item.durationSeconds) })) : [],
     genres: Array.isArray(game.genres) ? [...new Set(game.genres.filter(value => typeof value === 'string').map(value => value.trim().slice(0, 60)).filter(Boolean))].slice(0, 30) : [],
     genresFetchedAt: Number.isFinite(game.genresFetchedAt) ? game.genresFetchedAt : 0,
     hidden: game.hidden === true
@@ -45,6 +47,7 @@ function migrate(database) {
     current = { ...current, schemaVersion: 2, playNext: Array.isArray(current.playNext) ? current.playNext : [], playNextStore: Array.isArray(current.playNextStore) ? current.playNextStore : [] };
     version = 2;
   }
+  if (version < 3) { current = { ...current, schemaVersion: 3 }; version = 3; }
   if (version !== SCHEMA_VERSION) throw new Error(`Unsupported Chronos data version: ${version}`);
   const uniqueGames = new Map();
   for (const game of (Array.isArray(current.games) ? current.games : []).map(cleanGame).filter(Boolean)) {

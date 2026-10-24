@@ -35,6 +35,9 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 3 — Track actual play sessions
 
+**Status:** completed for directly launched Windows executables. Chronos stores local session history and totals separately from Steam playtime, offers manual correction, and clearly reports when a launcher handoff cannot be observed. Windows stays open in the background while a tracked executable is running so its session can be recorded on exit.
+
+
 - Record session duration when Chronos launches a game and detect when it exits; combine locally tracked time with provider-reported playtime without double counting.
 - Persist last-played/session history and let the user correct a game's total playtime.
 - Handle games launched through clients, direct executables, and targets that Chronos cannot observe after handoff.

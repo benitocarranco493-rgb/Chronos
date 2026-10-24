@@ -21,7 +21,8 @@ contextBridge.exposeInMainWorld('chronos', {
   installUpdate: () => ipcRenderer.invoke('update:install'),
   openUpdatePage: url => ipcRenderer.invoke('update:open', url),
   onUpdateState: callback => ipcRenderer.on('update:state', (_event, payload) => callback(payload)),
-  launch: target => ipcRenderer.invoke('game:launch', target),
+  launch: (gameId, target) => ipcRenderer.invoke('game:launch', gameId, target),
+  onGameSessionEnded: callback => ipcRenderer.on('game:session-ended', (_event, payload) => callback(payload)),
   openStore: url => ipcRenderer.invoke('store:open', url),
   openEpicBrowse: url => ipcRenderer.invoke('store:epic-browse', url),
   pickGame: () => ipcRenderer.invoke('game:pick')
