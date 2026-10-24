@@ -355,6 +355,7 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 #game-form .add-fields .field-wide { grid-column: 1 / -1; }
 #game-form input, #game-form select { min-height: 43px; padding: 0 13px; border: 1px solid rgba(188,162,222,.17); border-radius: 11px; color: #f3ecff; background: rgba(8,7,14,.65); font: 500 12px "Red Hat Display",sans-serif; transition: border-color .18s,background .18s,box-shadow .18s; }
 #game-form input::placeholder { color: #777084; }
+#game-form input[type="color"] { min-height:43px; padding:5px; cursor:pointer; }
 #game-form input:focus, #game-form select:focus { border-color: rgba(190,145,244,.65); background: rgba(20,13,30,.95); box-shadow: 0 0 0 3px rgba(158,105,218,.12); }
 #game-form select { appearance: none; padding-right: 32px; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12' fill='none' stroke='%23c6a4ef' stroke-width='1.5'%3E%3Cpath d='m2 4 4 4 4-4'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 12px center; }
 #game-form .target-row { gap: 8px; }
@@ -431,9 +432,12 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .dock-play-icon { width: 18px; height: 18px; color: var(--coral); }
 .achievement-progress { height: 5px; overflow: hidden; margin: 13px 0 14px; border-radius: 6px; background: rgba(195,202,228,.13); }
 .achievement-progress>span { width: 0; height: 100%; display: block; border-radius: inherit; background: linear-gradient(90deg,#a991ff,#d0b8ff); box-shadow: 0 0 12px rgba(174,130,255,.34); transition: width .55s cubic-bezier(.2,.8,.2,1); }
+.achievement-sort { display:flex; align-items:center; gap:7px; margin:0 0 10px; color:#9e94ad; font-size:9px; }
+.achievement-sort select { min-height:27px; padding:0 8px; border:1px solid rgba(185,158,221,.17); border-radius:7px; color:#ddd2ea; background:#13101a; font:500 9px "Red Hat Display",sans-serif; }
 .achievements-grid { display: grid; grid-template-columns: repeat(8,minmax(0,1fr)); gap: 8px; }
 .achievement-icon { aspect-ratio: 1; position: relative; overflow: hidden; padding: 0; border: 1px solid rgba(190,200,255,.19); border-radius: 10px; background: #1c2234; animation: achievement-enter .3s ease both; }
 .achievement-icon img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.achievement-icon>small { position:absolute; top:3px; left:3px; padding:2px 4px; border:1px solid rgba(255,255,255,.18); border-radius:5px; color:#f4eaff; background:rgba(12,9,18,.78); font:700 7px "Chakra Petch",sans-serif; }
 .achievement-placeholder { width: 100%; height: 100%; display: grid; place-items: center; color: #a4aed0; font-size: 22px; }
 .achievement-icon.locked img { filter: grayscale(1) brightness(.42); }
 .achievement-icon.unlocked { border-color: rgba(174,130,255,.36); box-shadow: 0 0 12px rgba(174,130,255,.11); }
@@ -607,3 +611,27 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .detail-session-history { display:grid; gap:5px; margin-top:11px; }
 .session-history-row { display:flex; justify-content:space-between; gap:12px; color:#aaa0b7; font-size:10px; }
 .session-history-row strong { color:#dfd1f1; font-weight:650; }
+
+.steam-metadata-panel { display:grid; gap:10px; padding:15px; border:1px solid rgba(185,158,221,.15); border-radius:14px; background:linear-gradient(145deg,rgba(31,24,43,.68),rgba(13,12,19,.65)); }
+.steam-metadata-heading { display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.steam-metadata-heading h3 { margin:4px 0 0; color:#eee7f7; font:650 15px "Red Hat Display",sans-serif; }
+.review-score { color:#d8c2ff; font:700 10px "Chakra Petch",sans-serif; }
+.detail-description { margin:0; color:#bbb2c7; font-size:11px; line-height:1.55; }
+.detail-metadata-facts { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:7px 14px; }
+.detail-metadata-facts>div { display:grid; gap:3px; }
+.detail-metadata-facts strong { color:#978ca4; font:700 8px "Chakra Petch",sans-serif; letter-spacing:.6px; text-transform:uppercase; }
+.detail-metadata-facts span { color:#ded5e8; font-size:10px; line-height:1.45; }
+.detail-media-gallery { display:flex; gap:8px; overflow-x:auto; padding:2px 1px 5px; }
+.detail-media-thumb { width:138px; height:78px; position:relative; flex:none; overflow:hidden; padding:0; border:1px solid rgba(185,158,221,.18); border-radius:9px; background:#120f19; cursor:pointer; transition:transform .18s,border-color .18s; }
+.detail-media-thumb:hover { transform:translateY(-2px); border-color:#b999e7; }
+.detail-media-thumb img { width:100%; height:100%; display:block; object-fit:cover; }
+.detail-media-thumb>span { position:absolute; inset:auto 0 0; padding:5px; color:#fff; background:linear-gradient(transparent,rgba(0,0,0,.8)); font:700 8px "Chakra Petch",sans-serif; text-align:left; }
+.detail-media-empty { margin:0; color:#92899e; font-size:10px; }
+.media-viewer { width:min(1100px,calc(100vw - 40px)); max-width:none; max-height:calc(100vh - 40px); position:relative; overflow:visible; padding:16px; border:1px solid rgba(185,158,221,.22); border-radius:16px; color:#eee7f7; background:#0c0a11; box-shadow:0 24px 90px rgba(0,0,0,.7); }
+.media-viewer::backdrop { background:rgba(4,3,7,.86); backdrop-filter:blur(7px); }
+#media-viewer-content { display:grid; min-height:120px; place-items:center; }
+#media-viewer-content>img,#media-viewer-content>video { max-width:100%; max-height:calc(100vh - 110px); object-fit:contain; border-radius:8px; }
+#media-viewer-content>video { width:100%; }
+#media-viewer-caption { margin:10px 0 0; color:#bdb2cc; font-size:11px; }
+.media-viewer .dialog-close { position:absolute; top:8px; right:8px; z-index:2; width:34px; height:34px; border:1px solid rgba(255,255,255,.2); border-radius:9px; color:white; background:rgba(7,6,10,.7); }
+@media(max-width:600px){.detail-metadata-facts{grid-template-columns:1fr}.detail-media-thumb{width:116px;height:66px}.media-viewer{width:calc(100vw - 20px);padding:10px}}

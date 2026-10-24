@@ -12,6 +12,7 @@ contextBridge.exposeInMainWorld('chronos', {
   browseStores: region => ipcRenderer.invoke('store:browse', region),
   importSteamLibrary: steamId => ipcRenderer.invoke('steam:library', steamId),
   loadSteamGenres: appIds => ipcRenderer.invoke('steam:genres', appIds),
+  loadSteamStoreDetails: appId => ipcRenderer.invoke('steam:store-details', appId),
   loadSteamGameDetails: (appId, steamProfile) => ipcRenderer.invoke('steam:game-details', appId, steamProfile),
   loadSteamGameDlc: appId => ipcRenderer.invoke('steam:game-dlc', appId),
   searchArtwork: title => ipcRenderer.invoke('art:search', title),

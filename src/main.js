@@ -9,7 +9,7 @@ const { createCredentialStore } = require('./data/credentials');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
 const { searchStores, browseStores, validateEpicBrowseUrl } = require('./providers/stores');
-const { importSteamLibrary, getSteamGameDetails, getSteamGameGenres, getSteamGameDlc, searchGridArt } = require('./providers/online');
+const { importSteamLibrary, getSteamGameDetails, getSteamGameGenres, getSteamStoreDetails, getSteamGameDlc, searchGridArt } = require('./providers/online');
 const { epicLoginUrl, connectEpic, epicLibrary } = require('./providers/epic');
 const { autoUpdater } = require('electron-updater');
 
@@ -116,6 +116,15 @@ ipcMain.handle('steam:genres', async (_event, appIds) => {
     }));
   }
   return result;
+});
+const steamStoreDetailsCache = new Map();
+ipcMain.handle('steam:store-details', async (_event, appId) => {
+  if (typeof appId !== 'string' || !/^\d{1,10}$/.test(appId)) throw new Error('Invalid Steam game details request.');
+  const cached = steamStoreDetailsCache.get(appId);
+  if (cached && cached.expiresAt > Date.now()) return cached.details;
+  const details = await getSteamStoreDetails(appId);
+  steamStoreDetailsCache.set(appId, { details, expiresAt: Date.now() + 24 * 60 * 60 * 1000 });
+  return details;
 });
 const steamDetailsCache = new Map();
 ipcMain.handle('steam:game-details', async (_event, appId, steamProfile) => {

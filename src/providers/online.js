@@ -67,7 +67,37 @@ async function getSteamGameGenres(appId, fetchImpl = fetch) {
   const payload = await response.json();
   const app = payload?.[String(appId)];
   if (!app?.success) return [];
-  return [...new Set((app.data?.genres || []).map(item => item.description).filter(value => typeof value === 'string' && value.trim()))].slice(0, 20);
+  return [...new Set((app.data?.genres || []).map(item => item?.description).filter(value => typeof value === 'string' && value.trim()))].slice(0, 20);
+}
+
+async function getSteamStoreDetails(appId, fetchImpl = fetch) {
+  if (!/^\d{1,10}$/.test(String(appId))) throw new Error('Invalid Steam game ID.');
+  const url = new URL('https://store.steampowered.com/api/appdetails');
+  url.search = new URLSearchParams({ appids: String(appId), cc: 'us', l: 'en' }).toString();
+  const response = await fetchImpl(url, { signal: AbortSignal.timeout(12000) });
+  if (!response.ok) throw new Error(`Steam details returned HTTP ${response.status}.`);
+  const payload = await response.json(), app = payload?.[String(appId)];
+  if (!app?.success || !app.data) return null;
+  const safeMediaUrl = (value, extensions) => {
+    try {
+      const media = new URL(String(value));
+      if (!['https:', 'http:'].includes(media.protocol) || !/(^|\.)steamstatic\.com$/i.test(media.hostname) || !extensions.test(media.pathname)) return '';
+      media.protocol = 'https:';
+      return media.href;
+    } catch { return ''; }
+  };
+  const data = app.data;
+  return {
+    developers: (data.developers || []).filter(value => typeof value === 'string').slice(0, 8),
+    publishers: (data.publishers || []).filter(value => typeof value === 'string').slice(0, 8),
+    releaseDate: String(data.release_date?.date || '').slice(0, 80),
+    description: String(data.short_description || '').replace(/<[^>]*>/g, '').slice(0, 1600),
+    reviewScore: Number.isFinite(data.metacritic?.score) ? data.metacritic.score : null,
+    genres: [...new Set((data.genres || []).map(item => item?.description).filter(value => typeof value === 'string'))].slice(0, 20),
+    features: [...new Set((data.categories || []).map(item => item?.description).filter(value => typeof value === 'string'))].slice(0, 20),
+    screenshots: (data.screenshots || []).map(item => safeMediaUrl(item.path_full, /\.(?:jpe?g|png|webp)$/i)).filter(Boolean).slice(0, 12),
+    trailers: (data.movies || []).map(item => ({ title: String(item.name || 'Trailer').slice(0, 120), poster: safeMediaUrl(item.thumbnail, /\.(?:jpe?g|png|webp)$/i), url: safeMediaUrl(item.mp4?.max || item.mp4?.[480] || item.webm?.max, /\.mp4$/i) })).filter(item => item.url).slice(0, 5)
+  };
 }
 
 async function getSteamGameDlc(appId, fetchImpl = fetch) {
@@ -98,9 +128,12 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
   playerUrl.search = new URLSearchParams({ key: apiKey, steamid: steamId, appid: gameId, l: 'english' }).toString();
   const schemaUrl = new URL(STEAM_SCHEMA_API);
   schemaUrl.search = new URLSearchParams({ key: apiKey, appid: gameId, l: 'english', format: 'json' }).toString();
-  const [playerResponse, schemaResponse] = await Promise.all([
+  const globalUrl = new URL('https://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v2/');
+  globalUrl.searchParams.set('gameid', gameId);
+  const [playerResponse, schemaResponse, globalResponse] = await Promise.all([
     fetchImpl(playerUrl, { signal: AbortSignal.timeout(15000) }),
-    fetchImpl(schemaUrl, { signal: AbortSignal.timeout(15000) })
+    fetchImpl(schemaUrl, { signal: AbortSignal.timeout(15000) }),
+    fetchImpl(globalUrl, { signal: AbortSignal.timeout(12000) }).catch(() => null)
   ]);
   if (!playerResponse.ok) {
     let reason = '';
@@ -137,6 +170,13 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
       if (Array.isArray(schema)) schemaAchievements = schema;
     } catch { /* Achievement unlocks still work without localized schema details. */ }
   }
+  let rarityByName = new Map();
+  if (globalResponse?.ok) {
+    try {
+      const values = (await globalResponse.json())?.achievementpercentages?.achievements;
+      if (Array.isArray(values)) rarityByName = new Map(values.filter(item => typeof item?.name === 'string' && Number.isFinite(Number(item.percent))).map(item => [item.name, Number(item.percent)]));
+    } catch { /* Player achievements still render without global rarity. */ }
+  }
   const unlockedByName = new Map(playerStats.achievements.map(item => [item.apiname, item]));
   const definitions = schemaAchievements.length ? schemaAchievements : playerStats.achievements;
   const achievements = definitions.slice(0, 500).map(item => {
@@ -153,6 +193,7 @@ async function getSteamGameDetails(apiKey, steamProfile, appId, fetchImpl = fetc
       icon: (icons[0] || '').slice(0, 2048),
       iconFallbacks: icons.slice(1).map(url => url.slice(0, 2048)),
       unlocked,
+      rarityPercent: rarityByName.has(item.name || item.apiname) ? rarityByName.get(item.name || item.apiname) : null,
       unlockTime: Number(progress?.unlocktime) || 0
     };
   });
@@ -187,4 +228,4 @@ async function searchGridArt(apiKey, title, fetchImpl = fetch) {
   return results;
 }
 
-module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, getSteamGameGenres, getSteamGameDlc, searchGridArt };
+module.exports = { importSteamLibrary, resolveSteamId, getSteamGameDetails, getSteamGameGenres, getSteamStoreDetails, getSteamGameDlc, searchGridArt };

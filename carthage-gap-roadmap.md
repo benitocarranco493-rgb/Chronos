@@ -46,10 +46,13 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 4 — Enrich game details
 
-- Add cached developer, publisher, release date, tags/family, review summary, and store links when reliable sources provide them.
-- Add screenshots and trailers with a gallery and full-size viewer.
-- Show global achievement rarity and more useful achievement ordering when Steam provides those values.
-- Improve artwork editing with crop/position and per-cartridge label/color controls.
+**Status:** completed. Steam details are cached per cartridge with developer, publisher, release date, genres, description, Metacritic score, screenshots, and trailers. The details view has a full-size media viewer, global achievement rarity with rarity/unlock sorting, and manual cover alignment/label color controls. The library migrates to schema 4 automatically.
+
+
+- [x] Add cached developer, publisher, release date, store categories, review score, and store links when reliable sources provide them.
+- [x] Add screenshots and trailers with a gallery and full-size viewer.
+- [x] Show global achievement rarity and more useful achievement ordering when Steam provides those values.
+- [x] Improve artwork editing with cover alignment and per-cartridge label color controls.
 
 **Exit criteria:** game details provide useful context and media without blocking launch or failing when a provider has no metadata.
 
