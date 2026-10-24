@@ -3,9 +3,11 @@ const path = require('node:path');
 const fs = require('node:fs');
 const crypto = require('node:crypto');
 const { spawn } = require('node:child_process');
+const os = require('node:os');
 const { pathToFileURL } = require('node:url');
 const { createStore } = require('./data/store');
 const { createCredentialStore } = require('./data/credentials');
+const { DiscordPresence } = require('./providers/discord');
 const { scanInstalledGamesDetailed, findRiotClient, findBattleNetClient } = require('./providers/library');
 const { createGameLauncher } = require('./providers/launch');
 const { searchStores, browseStores, validateEpicBrowseUrl } = require('./providers/stores');
@@ -23,6 +25,7 @@ const launchGame = createGameLauncher({
 
 const store = createStore(app.getPath('userData'));
 const credentials = createCredentialStore(app.getPath('userData'), safeStorage, process.platform);
+const discordPresence = new DiscordPresence();
 autoUpdater.autoDownload = false;
 let availableUpdate = false;
 let activeTrackedGames = 0;
@@ -44,11 +47,35 @@ function createWindow() {
   win.loadFile(path.join(__dirname, 'index.html'));
 }
 
+let libraryWatchers = [];
+let libraryChangeTimer = null;
+function watchLocalLibraries() {
+  for (const watcher of libraryWatchers) watcher.close();
+  libraryWatchers = [];
+  if (process.platform !== 'win32') return;
+  const paths = new Map();
+  const add = (folder, provider) => { try { if (folder && fs.statSync(folder).isDirectory()) paths.set(folder, provider); } catch {} };
+  const roots = [...new Set([process.env['ProgramFiles(x86)'], process.env.ProgramFiles, process.env.LOCALAPPDATA].filter(Boolean).map(root => path.join(root, 'Steam')))];
+  for (const root of roots) {
+    add(path.join(root, 'steamapps'), 'Steam');
+    const vdf = path.join(root, 'steamapps', 'libraryfolders.vdf');
+    try { for (const match of fs.readFileSync(vdf, 'utf8').matchAll(/"path"\s+"((?:\\\\.|[^"])*)"/g)) add(path.join(match[1].replace(/\\\\/g, '\\'), 'steamapps'), 'Steam'); } catch {}
+    add(path.join(root, 'config'), 'Steam');
+  }
+  add(path.join(process.env.ProgramData || 'C:\\ProgramData', 'Epic', 'EpicGamesLauncher', 'Data', 'Manifests'), 'Epic Games');
+  for (const folder of [path.join(process.env.APPDATA || '', 'heroic'), path.join(process.env.LOCALAPPDATA || '', 'Heroic'), path.join(process.env.LOCALAPPDATA || '', 'Lutris')]) add(folder, 'Other launchers');
+  for (const [folder, provider] of paths) {
+    try { libraryWatchers.push(fs.watch(folder, { persistent: false }, () => { clearTimeout(libraryChangeTimer); libraryChangeTimer = setTimeout(() => { watchLocalLibraries(); BrowserWindow.getAllWindows().forEach(win => win.webContents.send('library:changed', { provider })); }, 900); })); } catch {}
+  }
+}
+
 app.whenReady().then(() => {
+  watchLocalLibraries();
   createWindow();
   app.on('activate', () => { if (!BrowserWindow.getAllWindows().length) createWindow(); });
 });
 app.on('window-all-closed', () => { if (process.platform !== 'darwin' && !(process.platform === 'win32' && activeTrackedGames > 0)) app.quit(); });
+app.on('before-quit', () => discordPresence.close());
 
 ipcMain.handle('data:load', async (_event, legacy = {}) => {
   const legacySettings = legacy.settings && typeof legacy.settings === 'object' ? legacy.settings : {};
@@ -61,6 +88,18 @@ ipcMain.handle('data:save', (_event, database) => {
   if (!database || typeof database !== 'object' || !Array.isArray(database.games) || database.games.length > 10000) throw new Error('Invalid library data.');
   return store.save(database);
 });
+ipcMain.handle('app:info', () => ({ version: app.getVersion(), platform: process.platform, arch: process.arch, electron: process.versions.electron, os: os.release() }));
+ipcMain.handle('discord:connect', async (_event, options = {}) => {
+  if (options.enabled !== true) { discordPresence.close(); return { connected: false, message: 'Discord presence is off.' }; }
+  if (typeof options.applicationId !== 'string') throw new Error('Enter your Discord Application ID.');
+  await discordPresence.connect(options.applicationId);
+  return { connected: true, message: 'Connected to the local Discord desktop app.' };
+});
+ipcMain.handle('discord:activity', (_event, title) => {
+  if (typeof title !== 'string' || title.length > 256) return false;
+  return discordPresence.setActivity(title);
+});
+ipcMain.handle('discord:clear', () => discordPresence.setActivity(null));
 ipcMain.handle('credentials:set', (_event, provider, value) => {
   if (!['steam', 'steamgriddb'].includes(provider) || typeof value !== 'string' || value.length > 512) return false;
   return credentials.set(provider, value);
@@ -178,6 +217,7 @@ ipcMain.handle('game:launch', async (_event, gameId, target) => {
     if (finalized || !spawned) return;
     finalized = true;
     activeTrackedGames = Math.max(0, activeTrackedGames - 1);
+    if (activeTrackedGames === 0) discordPresence.setActivity(null);
     const endedAt = Date.now(), durationSeconds = Math.max(0, Math.floor((endedAt - startedAt) / 1000));
     try {
       const latest = store.load(), game = latest.games.find(item => item.id === gameId);

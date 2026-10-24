@@ -80,10 +80,12 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 7 — Presence, onboarding, and support
 
-- Add optional Discord Rich Presence using the local Discord IPC connection, with no game or account data sent through Chronos servers.
-- Expand first-run setup into a skippable guided tour and add a concise What's New view after updates.
-- Add diagnostics/feedback flows that ask before sending anything and exclude credentials and library secrets.
-- Detect relevant local library changes and offer a safe refresh instead of requiring a full manual rescan every time.
+**Status:** completed for Windows. Discord presence is opt-in and uses the local desktop IPC connection; users provide their own Discord Application ID. Game titles are sent only to the local Discord client, never through Chronos servers. First-run setup includes a skippable two-step tour and version highlights appear after updates. Diagnostics previews only app/system version information and copies it locally only after the user chooses; no report is sent. Chronos watches known Steam, Epic and Heroic library folders and asks before rescanning. Linux presence and library watching remain for the Linux phase.
+
+- [x] Add optional Discord Rich Presence using the local Discord IPC connection, with no game or account data sent through Chronos servers.
+- [x] Expand first-run setup into a skippable guided tour and add a concise What's New view after updates.
+- [x] Add diagnostics/feedback flows that ask before sending anything and exclude credentials and library secrets.
+- [x] Detect relevant local library changes and offer a safe refresh instead of requiring a full manual rescan every time.
 
 **Exit criteria:** integrations are opt-in, setup can be skipped, and diagnostics disclose exactly what would be sent.
 

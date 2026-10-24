@@ -2,6 +2,11 @@ const { contextBridge, ipcRenderer } = require('electron');
 contextBridge.exposeInMainWorld('chronos', {
   loadData: legacy => ipcRenderer.invoke('data:load', legacy),
   saveData: database => ipcRenderer.invoke('data:save', database),
+  getAppInfo: () => ipcRenderer.invoke('app:info'),
+  onLibraryChanged: callback => ipcRenderer.on('library:changed', (_event, payload) => callback(payload)),
+  configureDiscordPresence: options => ipcRenderer.invoke('discord:connect', options),
+  updateDiscordPresence: title => ipcRenderer.invoke('discord:activity', title),
+  clearDiscordPresence: () => ipcRenderer.invoke('discord:clear'),
   saveCredential: (provider, value) => ipcRenderer.invoke('credentials:set', provider, value),
   scanGames: () => ipcRenderer.invoke('games:scan'),
   epicLoginUrl: () => ipcRenderer.invoke('epic:login-url'),

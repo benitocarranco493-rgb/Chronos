@@ -392,6 +392,21 @@ dialog::backdrop { background: rgba(3,5,13,.72); backdrop-filter: blur(8px); }
 .welcome-actions #welcome-later { margin-right: auto; }
 #welcome-dialog h2 { margin: 9px 0; }
 #welcome-dialog p { color: #bbc2d7; font-size: 12px; line-height: 1.6; }
+.support-dialog { width:min(480px,calc(100vw - 36px)); padding:28px; border:1px solid rgba(190,160,255,.19); border-radius:19px; color:var(--text); background:linear-gradient(155deg,#171320,#0d0b12); box-shadow:0 28px 90px rgba(0,0,0,.68),0 0 45px rgba(144,99,213,.12); }
+.support-dialog::backdrop { background:rgba(3,3,8,.76); backdrop-filter:blur(8px); }
+.support-dialog h2 { margin:10px 0 8px; font-size:23px; }
+.support-dialog p { color:#b8afc5; font-size:12px; line-height:1.65; }
+.support-dialog .dialog-close { position:absolute; top:14px; right:14px; width:34px; height:34px; border:1px solid var(--line); border-radius:9px; background:rgba(255,255,255,.04); }
+.tour-list { display:grid; gap:10px; margin:18px 0 22px; padding-left:19px; color:#c9c0d5; font-size:12px; line-height:1.55; }
+.tour-list strong { color:#eee6fa; }
+.support-subtitle { margin:0 0 14px; }
+.diagnostics-preview { max-height:180px; overflow:auto; padding:13px; border:1px solid var(--line); border-radius:10px; color:#ded2ef; background:rgba(0,0,0,.22); font:11px/1.7 Consolas,monospace; white-space:pre-wrap; }
+.discord-controls { flex-wrap:wrap; }
+.discord-controls input { min-width:200px; }
+.library-refresh-prompt { margin-left:8px; padding:3px 9px; border-color:rgba(183,143,242,.3); color:#e4d2ff; font-size:10px; }
+:root[data-theme="light"] .support-dialog { color:#241a30; background:linear-gradient(155deg,#fff,#f0ebf7); }
+:root[data-theme="light"] .support-dialog p,:root[data-theme="light"] .tour-list { color:#5d5268; }
+:root[data-theme="light"] .tour-list strong { color:#32223f; }
 
 .detail-dialog { width: min(1120px, calc(100vw - 56px)); max-height: min(850px, calc(100vh - 48px)); padding: 0; overflow: hidden; }
 .detail-dialog[open] .detail-layout { animation: detail-enter .32s cubic-bezier(.2,.8,.2,1) both; }
