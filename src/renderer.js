@@ -1,6 +1,9 @@
 const $ = selector => document.querySelector(selector);
 const palette = ['#d3b8ff','#bd91ff','#a77cff','#e0ccff','#9165dc','#c59ae8','#8060ba'];
 let games = [];
+let visibleGameIds = new Set();
+let lastRandomGameId = null;
+let randomPickTimer = null;
 let settings = {};
 let selectedGameId = null;
 let favoritesOnly = false;
@@ -50,6 +53,8 @@ function render() {
   const gamePlatformKeys=game=>[game.platform,...(game.sources||[])].filter(Boolean).map(value=>{const key=String(value).toLowerCase();return key==='steam-account'?'steam':key==='epic-account'?'epic':key});
   const freeToPlayStatus=game=>{for(const key of ['freeToPlay','isFreeToPlay','is_free','f2p'])if(typeof game[key]==='boolean')return game[key];return undefined};
   const shown = games.filter(g => g.title.toLowerCase().includes(query) && (showHidden||!g.hidden) && (!favoritesOnly||g.favorite) && (platform === 'all' || gamePlatformKeys(g).includes(platform)) && (libraryFilter==='all'||(libraryFilter==='installed'&&g.installed===true)||(libraryFilter==='not-installed'&&g.installed===false)||(libraryFilter==='free-to-play'&&freeToPlayStatus(g)===true)||(libraryFilter==='paid'&&freeToPlayStatus(g)===false))).sort((a,b) => sort==='az'?a.title.localeCompare(b.title):sort==='played'?(b.lastPlayed||0)-(a.lastPlayed||0):sort==='platform'?a.platform.localeCompare(b.platform)||a.title.localeCompare(b.title):(b.added||0)-(a.added||0));
+  visibleGameIds=new Set(shown.map(game=>game.id));
+  $('#random-game').disabled=shown.length===0;
   $('#visible-count').textContent = `${shown.length} games`;
   const grid=$('#game-grid'),liveIds=new Set(games.map(game=>game.id));
   for(const [id,card] of gameCardCache){if(!liveIds.has(id)){card.remove();gameCardCache.delete(id)}}
@@ -86,6 +91,7 @@ $('#search').addEventListener('input',()=>{clearTimeout(renderSearchTimer);rende
 $('#platform-filter').onchange=$('#library-filter').onchange=$('#sort').onchange=render;
 $('#favorites-filter').onclick=()=>{favoritesOnly=!favoritesOnly;$('#favorites-filter').setAttribute('aria-pressed',String(favoritesOnly));$('#favorites-filter').innerHTML=`${iconSvg(favoritesOnly?'star-solid':'star')} Favorites`;render()};
 $('#hidden-filter').onclick=()=>{showHidden=!showHidden;$('#hidden-filter').setAttribute('aria-pressed',String(showHidden));$('#hidden-filter').innerHTML=`${iconSvg(showHidden?'eye':'eye-slash')} ${showHidden?'Hide hidden':'Show hidden'}`;render()};
+$('#random-game').addEventListener('click',()=>{if(randomPickTimer)return;const candidates=games.filter(game=>visibleGameIds.has(game.id));if(!candidates.length)return;let choices=candidates.filter(game=>game.id!==lastRandomGameId);if(!choices.length)choices=candidates;const game=choices[Math.floor(Math.random()*choices.length)];lastRandomGameId=game.id;const button=$('#random-game');button.classList.add('rolling');button.disabled=true;randomPickTimer=setTimeout(()=>{randomPickTimer=null;button.classList.remove('rolling');button.disabled=visibleGameIds.size===0;const card=[...gameGrid.children].find(item=>item.dataset.id===game.id);card?.scrollIntoView({behavior:'smooth',block:'center'});openDetails(game.id)},460)});
 $('#choose-launch').onclick=async()=>{const target=await window.chronos.pickGame();if(target)$('#game-launch').value=target};
 $('#game-form').addEventListener('submit',async event=>{event.preventDefault();const title=$('#game-title').value.trim();if(!title)return;const launch=$('#game-launch').value.trim(),priceType=$('#game-free-to-play').value,freeToPlay=priceType==='unknown'?undefined:priceType==='free';if(selectedGameId){const game=games.find(item=>item.id===selectedGameId);if(game){Object.assign(game,{title,platform:$('#game-platform').value,launch,art:$('#game-art').value.trim()});if(freeToPlay===undefined)delete game.freeToPlay;else game.freeToPlay=freeToPlay;game.launchOptions=launch?[{platform:game.platform,source:game.source||'manual',launch}]:[]}}else games.unshift({id:`manual-${Date.now()}`,title,platform:$('#game-platform').value,source:'manual',sources:['manual'],launch,launchOptions:launch?[{platform:'Manual',source:'manual',launch}]:[],art:$('#game-art').value.trim(),...(freeToPlay===undefined?{}:{freeToPlay}),added:Date.now()});await save();render();$('#game-form').reset();$('#add-dialog').close();selectedGameId=null});
 function renderDlcPanel(dlcs,{steam=false,message=''}={}){
