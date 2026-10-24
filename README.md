@@ -38,6 +38,7 @@ The Windows NSIS installer and portable build have been generated successfully o
 - Local Steam app manifest scanning (including extra libraries), Epic Games Launcher manifests, direct Epic account import, and Heroic GOG/Amazon discovery, Lutris/Flatpak on Linux, and common Windows Riot/Battle.net installs.
 - Manual entries and cartridge label artwork when a cover is missing.
 - A responsive cartridge shelf with prominent cover art, launcher badges, and compact top navigation.
+- Personalizable appearance presets, accent colors, contrast and transparency controls, adjustable cartridge sizing and shell colors, drag-to-spin/flip interactions, optional interface tones, and reduced-motion/keyboard-focus preferences.
 - Search, platform filtering, favorites, sorting by name/platform/activity, editable game details, launch-target selection, relocalization, remove, and launch status.
 - Animated game details with playtime, last opened, install state, launch targets, and Steam achievement progress when the public profile and game provide it.
 - Lazy cover loading and generated local labels when artwork is missing or unavailable.

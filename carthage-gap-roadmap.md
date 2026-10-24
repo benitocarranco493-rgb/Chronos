@@ -70,9 +70,11 @@ Comparison checked on **24 October 2026** against the current `main` branch of [
 
 ### Phase 6 — Personalization and tactile controls
 
-- Add appearance choices (light/dark, accent colors, background presets, contrast/transparency) and persist them per user.
-- Add adjustable cartridge size, custom cartridge colors, and richer 3D interactions such as drag-to-spin and flip.
-- Add optional UI sounds with volume and mute controls, plus reduced-motion and keyboard-navigation preferences.
+**Status:** completed. Appearance, accent and background presets, higher contrast and glass surfaces are saved in the user settings. Users can change cartridge size and per-game shell color, drag cartridges to spin them, flip them in the details view, enable interface tones with adjustable volume, reduce motion, and strengthen keyboard focus. Preferences apply on startup; drag rotation is disabled when reduced motion is enabled.
+
+- [x] Add appearance choices (light/dark, accent colors, background presets, contrast/transparency) and persist them per user.
+- [x] Add adjustable cartridge size, custom cartridge colors, and richer 3D interactions such as drag-to-spin and flip.
+- [x] Add optional UI sounds with volume and mute controls, plus reduced-motion and keyboard-navigation preferences.
 
 **Exit criteria:** users can tune the look and interaction intensity without reducing readability or making the library laggy.
 
